@@ -62,6 +62,7 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build binary
+        shell: bash
         run: |
           if [ "${{ matrix.static }}" = "true" ]; then
             export RUSTFLAGS="-C target-feature=+crt-static"
