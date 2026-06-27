@@ -1,0 +1,71 @@
+[package]
+name = "bnn-code"
+version = "0.1.0"
+edition = "2021"
+authors = ["BNN Code Team <team@bnn-code.dev>"]
+description = "Terminal-native AI coding agent powered by Binarized Neural Networks"
+license = "MIT"
+repository = "https://github.com/bnn-code/bnn-code"
+keywords = ["ai", "bnn", "coding", "terminal", "agent"]
+categories = ["command-line-utilities", "development-tools"]
+
+[dependencies]
+# CLI
+clap = { version = "4.5", features = ["derive"] }
+
+# Async runtime
+tokio = { version = "1.37", features = ["full"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# AST Parsing
+tree-sitter = "0.24"
+tree-sitter-python = "0.25"
+tree-sitter-javascript = "0.25"
+tree-sitter-typescript = "0.23"
+tree-sitter-rust = "0.24"
+tree-sitter-go = "0.25"
+tree-sitter-java = "0.23"
+tree-sitter-cpp = "0.23"
+tree-sitter-ruby = "0.23"
+tree-sitter-swift = "0.7"
+tree-sitter-kotlin = "0.3"
+
+# ML Inference
+ort = { version = "2.0.0-alpha.9", features = ["load-dynamic"] }
+ndarray = "0.17"
+tokenizers = "0.19"
+
+# Database
+rusqlite = { version = "0.31", features = ["bundled"] }
+
+# File system
+walkdir = "2.5"
+notify = "6.1"
+
+# Terminal UI
+crossterm = "0.27"
+ratatui = "0.26"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
+
+[profile.release-small]
+inherits = "release"
+opt-level = "z"
+lto = true
+codegen-units = 1

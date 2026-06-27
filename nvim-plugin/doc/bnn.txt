@@ -1,0 +1,131 @@
+*bnn.txt*    BNN Code - Terminal-native AI coding agent
+*Last updated*: June 2026
+
+==============================================================================
+CONTENTS                                                    *bnn-contents*
+
+    1. Introduction ................. |bnn-introduction|
+    2. Installation ................. |bnn-installation|
+    3. Configuration ................ |bnn-configuration|
+    4. Commands ..................... |bnn-commands|
+    5. Keybindings .................. |bnn-keybindings|
+    6. Examples ..................... |bnn-examples|
+
+==============================================================================
+1. INTRODUCTION                                          *bnn-introduction*
+
+BNN Code is a terminal-native AI coding assistant powered by Binarized
+Neural Networks (BNNs). It runs entirely on your machine, providing
+blazing-fast code understanding and generation without sending your code
+to any external service.
+
+Features:
+  - Codebase indexing with Tree-sitter AST parsing
+  - Semantic code search and retrieval
+  - AI-powered code explanation, refactoring, and test generation
+  - Support for 15+ programming languages
+  - Interactive TUI with ratatui
+  - Fast binary inference with ONNX Runtime
+
+==============================================================================
+2. INSTALLATION                                          *bnn-installation*
+
+Prerequisites:
+  - Neovim >= 0.9.0
+  - BNN Code binary (install via `cargo install bnn-code` or .deb package)
+
+Using lazy.nvim: >
+    {
+        'bnn-code/nvim-plugin',
+        config = function()
+            require('bnn').setup({
+                binary_path = "bnn",
+                codebase_path = ".",
+            })
+        end,
+    }
+<
+
+Using packer.nvim: >
+    use {
+        'bnn-code/nvim-plugin',
+        config = function()
+            require('bnn').setup()
+        end,
+    }
+<
+
+Using vim-plug: >
+    Plug 'bnn-code/nvim-plugin'
+    lua require('bnn').setup()
+<
+
+==============================================================================
+3. CONFIGURATION                                        *bnn-configuration*
+
+Configure BNN Code in your init.lua: >
+
+    require('bnn').setup({
+        binary_path = "bnn",        -- Path to BNN binary
+        codebase_path = ".",        -- Codebase to index
+        show_output = true,         -- Show output in floating window
+        streaming = true,           -- Enable streaming output
+    })
+<
+
+==============================================================================
+4. COMMANDS                                                  *bnn-commands*
+
+:BnnExplain         Explain current file or selected code
+:BnnRefactor        Suggest refactoring improvements
+:BnnTest            Generate unit tests
+:BnnFix             Fix errors in staged changes
+:BnnCommit          Generate a commit message
+:BnnReview          Review staged changes
+:BnnDocument        Generate documentation
+:BnnQuery {query}   Ask a question about the codebase
+:BnnTerminal        Open an interactive BNN terminal
+
+==============================================================================
+5. KEYBINDINGS                                        *bnn-keybindings*
+
+Visual mode (select code first with `v`):
+  <leader>be        Explain selection
+  <leader>br        Refactor selection
+  <leader>bt        Generate tests for selection
+  <leader>bd        Generate documentation for selection
+
+Normal mode:
+  <leader>bf        Fix errors
+  <leader>bc        Generate commit message
+  <leader>brv       Review staged changes
+  <leader>bq        Ask BNN a question
+  <leader>bT        Open interactive terminal
+
+==============================================================================
+6. EXAMPLES                                                *bnn-examples*
+
+Explain a function: >
+    1. Move cursor to the function
+    2. Press `vab` to select the function block
+    3. Press `<leader>be` to explain
+<
+
+Generate tests for a file: >
+    :BnnTest
+<
+
+Ask a question about the codebase: >
+    :BnnQuery how does the authentication middleware work?
+<
+
+Generate a commit message: >
+    :BnnCommit
+<
+
+Open the interactive BNN terminal: >
+    :BnnTerminal
+<
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:

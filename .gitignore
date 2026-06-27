@@ -1,0 +1,28 @@
+# ── Rust ───────────────────────────────────────────
+target/
+Cargo.lock
+
+# ── VS Code Extension ──────────────────────────────
+vscode-extension/node_modules/
+vscode-extension/out/
+vscode-extension/*.vsix
+vscode-extension/package-lock.json
+
+# ── Editor / IDE ───────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── BNN Models ─────────────────────────────────────
+models/*.onnx
+models/*.json
+!models/.gitkeep
+
+# ── Logs ───────────────────────────────────────────
+*.log
