@@ -1,12 +1,13 @@
 [package]
 name = "bnn-code"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Mr. Yotsawarit Pudpong"]
 license = "MIT"
 description = "Terminal-native AI coding agent powered by Binarized Neural Networks"
-license = "MIT"
-repository = "https://github.com/bnn-code/bnn-code"
+readme = "README.md"
+homepage = "https://github.com/Yotsawarit/bnn-code"
+repository = "https://github.com/Yotsawarit/bnn-code"
 keywords = ["ai", "bnn", "coding", "terminal", "agent"]
 categories = ["command-line-utilities", "development-tools"]
 

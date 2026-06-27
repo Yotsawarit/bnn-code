@@ -123,7 +123,7 @@ jobs:
           cp dist/bnn deb/usr/local/bin/
           cat > deb/DEBIAN/control << 'EOF'
           Package: bnn-code
-          Version: 0.1.1
+          Version: 0.1.2
           Section: utils
           Priority: optional
           Architecture: amd64
@@ -132,7 +132,7 @@ jobs:
            BNN Code is a terminal-based AI coding assistant that helps you understand,
            refactor, and test your codebase using Binarized Neural Networks.
           EOF
-          dpkg-deb --build deb bnn-code_0.1.1_amd64.deb
+          dpkg-deb --build deb bnn-code_0.1.2_amd64.deb
 
       - name: Upload .deb artifact
         uses: actions/upload-artifact@v4
