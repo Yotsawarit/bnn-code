@@ -2,7 +2,8 @@
 name = "bnn-code"
 version = "0.1.1"
 edition = "2021"
-authors = ["BNN Code Team <team@bnn-code.dev>"]
+authors = ["Mr. Yotsawarit Pudpong"]
+license = "MIT"
 description = "Terminal-native AI coding agent powered by Binarized Neural Networks"
 license = "MIT"
 repository = "https://github.com/bnn-code/bnn-code"
