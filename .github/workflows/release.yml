@@ -14,6 +14,7 @@ jobs:
     name: Build ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-latest
@@ -21,9 +22,10 @@ jobs:
             artifact_name: bnn-code
             asset_name: bnn-code-linux-amd64
           - os: ubuntu-latest
-            target: x86_64-unknown-linux-musl
+            target: x86_64-unknown-linux-gnu
             artifact_name: bnn-code
-            asset_name: bnn-code-linux-amd64-musl
+            asset_name: bnn-code-linux-amd64-static
+            static: true
           - os: macos-latest
             target: x86_64-apple-darwin
             artifact_name: bnn-code
@@ -47,7 +49,7 @@ jobs:
           targets: ${{ matrix.target }}
 
       - name: Install musl-tools (Linux musl)
-        if: matrix.target == 'x86_64-unknown-linux-musl'
+        if: matrix.static
         run: sudo apt-get update && sudo apt-get install -y musl-tools
 
       - name: Cache cargo dependencies
@@ -60,7 +62,11 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build binary
-        run: cargo build --release --target ${{ matrix.target }}
+        run: |
+          if [ "${{ matrix.static }}" = "true" ]; then
+            export RUSTFLAGS="-C target-feature=+crt-static"
+          fi
+          cargo build --release --target ${{ matrix.target }}
 
       - name: Strip binary (Unix)
         if: runner.os != 'Windows'
