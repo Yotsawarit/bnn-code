@@ -7,6 +7,7 @@ mod indexer;
 mod inference;
 mod repl;
 mod retrieval;
+mod rogue;
 mod ui;
 mod utils;
 
@@ -45,6 +46,20 @@ async fn main() -> Result<()> {
         Some(Commands::Init) => {
             println!("🧠 Initializing BNN Code in current directory...");
             utils::init_project()?;
+        }
+        Some(Commands::Rogue { category, json }) => {
+            use rogue::{RogueEngine, format_report};
+            let mut engine = RogueEngine::new();
+            let report = if let Some(cat) = category {
+                engine.run_category(&cat)?
+            } else {
+                engine.run_all()?
+            };
+            if json {
+                println!("{}", serde_json::to_string_pretty(&report)?);
+            } else {
+                println!("{}", format_report(&report, true));
+            }
         }
         None => {
             // Interactive or one-shot mode

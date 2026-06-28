@@ -8,5 +8,6 @@ pub mod indexer;
 pub mod inference;
 pub mod repl;
 pub mod retrieval;
+pub mod rogue;
 pub mod ui;
 pub mod utils;

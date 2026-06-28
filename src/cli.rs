@@ -48,6 +48,15 @@ pub enum Commands {
     },
     /// Initialize BNN Code in current project
     Init,
+    /// Run rogue detection (security, code, ai, user behavior anomalies)
+    Rogue {
+        /// Detection category: security|code|ai|user (default: all)
+        #[arg(short, long)]
+        category: Option<String>,
+        /// Output as JSON
+        #[arg(short, long)]
+        json: bool,
+    },
 }
 
 #[cfg(test)]
@@ -117,6 +126,33 @@ mod tests {
     fn test_cli_init_command() {
         let cli = Cli::try_parse_from(["bnn", "init"]).unwrap();
         assert!(matches!(cli.command, Some(Commands::Init)));
+    }
+
+    #[test]
+    fn test_cli_rogue_command() {
+        let cli = Cli::try_parse_from(["bnn", "rogue"]).unwrap();
+        assert!(matches!(cli.command, Some(Commands::Rogue { .. })));
+    }
+
+    #[test]
+    fn test_cli_rogue_category() {
+        let cli = Cli::try_parse_from(["bnn", "rogue", "--category", "security"]).unwrap();
+        match cli.command {
+            Some(Commands::Rogue { category, json }) => {
+                assert_eq!(category.as_deref(), Some("security"));
+                assert!(!json);
+            }
+            _ => panic!("Expected Rogue command"),
+        }
+    }
+
+    #[test]
+    fn test_cli_rogue_json() {
+        let cli = Cli::try_parse_from(["bnn", "rogue", "--json"]).unwrap();
+        match cli.command {
+            Some(Commands::Rogue { json, .. }) => assert!(json),
+            _ => panic!("Expected Rogue command with json=true"),
+        }
     }
 
     #[test]
