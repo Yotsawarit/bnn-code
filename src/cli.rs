@@ -3,7 +3,7 @@ use clap::{Parser, Subcommand};
 #[derive(Parser)]
 #[command(name = "bnn")]
 #[command(author = "BNN Code Team")]
-#[command(version = "0.1.0")]
+#[command(version = "0.1.3")]
 #[command(about = "Terminal-native AI coding agent powered by BNNs")]
 pub struct Cli {
     /// Query to run (optional, enters REPL if not provided)
@@ -56,6 +56,23 @@ pub enum Commands {
         /// Output as JSON
         #[arg(short, long)]
         json: bool,
+    },
+    /// Fix bugs or errors in a file (scans codebase if no file given)
+    Fix {
+        /// File to fix (optional — scans full codebase if omitted)
+        file: Option<String>,
+    },
+    /// Generate a commit message from staged changes
+    Commit,
+    /// Review code for bugs, security, and performance
+    Review {
+        /// File to review (optional — reviews git diff if omitted)
+        file: Option<String>,
+    },
+    /// Generate docstrings and documentation
+    Document {
+        /// File to document
+        file: String,
     },
 }
 
@@ -153,6 +170,65 @@ mod tests {
             Some(Commands::Rogue { json, .. }) => assert!(json),
             _ => panic!("Expected Rogue command with json=true"),
         }
+    }
+
+    #[test]
+    fn test_cli_fix_command_with_file() {
+        let cli = Cli::try_parse_from(["bnn", "fix", "src/main.rs"]).unwrap();
+        match cli.command {
+            Some(Commands::Fix { file }) => assert_eq!(file.as_deref(), Some("src/main.rs")),
+            _ => panic!("Expected Fix command with file"),
+        }
+    }
+
+    #[test]
+    fn test_cli_fix_command_without_file() {
+        let cli = Cli::try_parse_from(["bnn", "fix"]).unwrap();
+        match cli.command {
+            Some(Commands::Fix { file }) => assert!(file.is_none()),
+            _ => panic!("Expected Fix command without file"),
+        }
+    }
+
+    #[test]
+    fn test_cli_commit_command() {
+        let cli = Cli::try_parse_from(["bnn", "commit"]).unwrap();
+        assert!(matches!(cli.command, Some(Commands::Commit)));
+    }
+
+    #[test]
+    fn test_cli_review_command_with_file() {
+        let cli = Cli::try_parse_from(["bnn", "review", "src/lib.rs"]).unwrap();
+        match cli.command {
+            Some(Commands::Review { file }) => assert_eq!(file.as_deref(), Some("src/lib.rs")),
+            _ => panic!("Expected Review command with file"),
+        }
+    }
+
+    #[test]
+    fn test_cli_review_command_without_file() {
+        let cli = Cli::try_parse_from(["bnn", "review"]).unwrap();
+        match cli.command {
+            Some(Commands::Review { file }) => assert!(file.is_none()),
+            _ => panic!("Expected Review command without file"),
+        }
+    }
+
+    #[test]
+    fn test_cli_document_command() {
+        let cli = Cli::try_parse_from(["bnn", "document", "src/util.rs"]).unwrap();
+        match cli.command {
+            Some(Commands::Document { file }) => assert_eq!(file, "src/util.rs"),
+            _ => panic!("Expected Document command"),
+        }
+    }
+
+    #[test]
+    fn test_cli_fix_overrides_query() {
+        // "fix" as a subcommand should not be parsed as a query
+        let cli = Cli::try_parse_from(["bnn", "fix"]).unwrap();
+        assert!(cli.query.is_none());
+        assert!(matches!(cli.command, Some(Commands::Fix { .. })));
     }
 
     #[test]

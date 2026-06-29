@@ -42,9 +42,9 @@ code --install-extension bnn-code-0.3.0.vsix
 | **Explain** | Explain selected code in plain English |
 | **Refactor** | Suggest refactoring improvements |
 | **Test** | Generate unit tests for selected code |
-| **Fix** | Fix errors in your code |
+| **Fix** | Fix errors in selected code (or scan codebase) |
 | **Commit** | Generate meaningful commit messages |
-| **Review** | Review staged changes |
+| **Review** | Review selected code (or staged changes) |
 | **Document** | Generate documentation |
 | **Query** | Ask any question about your codebase |
 | **Terminal** | Open interactive BNN terminal |
@@ -131,9 +131,10 @@ chmod +x scripts/install-neovim.sh
 | `:BnnExplain` | Explain current file |
 | `:BnnRefactor` | Suggest refactoring |
 | `:BnnTest` | Generate tests |
-| `:BnnFix` | Fix errors |
-| `:BnnCommit` | Generate commit message |
-| `:BnnReview` | Review changes |
+| `:BnnFix` | Fix errors in current file |
+| `:BnnFixCodebase` | Fix errors across entire codebase |
+| `:BnnCommit` | Generate commit message from staged changes |
+| `:BnnReview` | Review current file (or staged changes) |
 | `:BnnDocument` | Generate documentation |
 | `:BnnQuery {query}` | Ask a question |
 | `:BnnTerminal` | Open interactive terminal |
@@ -146,9 +147,10 @@ chmod +x scripts/install-neovim.sh
 | Visual | `<leader>br` | Refactor selection |
 | Visual | `<leader>bt` | Generate tests |
 | Visual | `<leader>bd` | Generate docs |
-| Normal | `<leader>bf` | Fix errors |
+| Normal | `<leader>bf` | Fix current file |
+| Normal | `<leader>bF` | Fix entire codebase |
 | Normal | `<leader>bc` | Generate commit message |
-| Normal | `<leader>brv` | Review changes |
+| Normal | `<leader>brv` | Review current file |
 | Normal | `<leader>bq` | Ask question |
 | Normal | `<leader>bT` | Open terminal |
 

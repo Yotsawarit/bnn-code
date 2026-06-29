@@ -4,7 +4,7 @@
 
 ## Core Files
 
-- `src/main.rs` — Entry point: CLI parsing, command dispatch, run_query() and run_inference_on_file() helpers
+- `src/main.rs` — Entry point: CLI parsing, command dispatch, run_query() helper
 - `src/cli.rs` — Clap-based CLI definition: Cli struct, Commands enum (explain, refactor, test, fix, commit, review, document, init, rogue)
 - `src/lib.rs` — Crate root
 - `src/repl.rs` — Interactive REPL mode
@@ -20,7 +20,7 @@
 
 ### Inference Engine
 
-- `src/inference/mod.rs` — generate() entry point: creates BnnInference and runs prompt
+- `src/inference/mod.rs` — generate(), run_inference(), run_inference_on_file(), run_inference_on_codebase() entry points
 - `src/inference/bnn.rs` — BnnInference struct: prompt construction, tokenization, ONNX run, decode. Auto-discovers any .onnx in models/ dir.
 - `src/inference/onnx.rs` — OnnxEngine: wraps ort::Session for ONNX Runtime inference
 - `src/inference/tokenizer.rs` — Tokenizer: HuggingFace tokenizer encode/decode

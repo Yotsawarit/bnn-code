@@ -1,4 +1,5 @@
 pub mod indexer;
+pub mod inference;
 pub mod retrieval;
 
 #[allow(dead_code)]

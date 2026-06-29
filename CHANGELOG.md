@@ -8,8 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 - **4 new CLI commands**: `fix`, `commit`, `review`, `document` with full inference engine integration
-- **`run_inference_on_file()`** — Shared helper that reads a file, indexes the codebase, retrieves context, and runs BNN inference
-- **`run_inference_on_codebase()`** — Codebase-wide analysis for `fix` (no file arg) and future commands
+- **`run_inference_on_file()`** — Shared helper that reads a file, runs BNN inference, and returns the response
+- **`run_inference_on_codebase()`** — Codebase-wide analysis: indexes, retrieves context, and runs inference
+- **`run_inference()`** — Direct prompt inference (no retrieval), used by `commit` and `review` diff modes
 - **Model auto-discovery** — `BnnInference::new()` finds any `.onnx` file in `models/`, not just `model.onnx`
 - **Model validation** — Three-layer check (exists → size → ONNX magic byte) with actionable error messages
 - **`CITATION.cff`** — Machine-readable citation metadata with leaderboard and dependency references
@@ -23,10 +24,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 - **`Fix.file`** is now optional (`Option<String>`) — works with both `bnn fix` and `bnn fix <file>`
-- **`Explain`, `Refactor`, `Test`** — Wired from stubs to real inference engine calls
+- **`Review.file`** is now optional (`Option<String>`) — works with both `bnn review` and `bnn review <file>`
+- **`Explain`, `Refactor`, `Test`** — Wired from stubs to real inference engine calls via `run_inference_on_file()`
+- **CLI version** updated from `0.1.0` to `0.1.3`
 - **Model loading** — Now compatible with both `download_model.py` (saves `model.onnx`) and `download_model.sh` (saves named files)
 - **README** — Expanded about section, updated commands table, fixed project structure, added references
 - **`inference/bnn.rs`** — Integrated validation from `model.rs` draft, added tracing logs
+- **`lib.rs`** — Exported `inference` module for integration tests
+- **Integration tests** — Updated version check and parser symbol count
 
 ### Removed
 - **Nested `bnn-code/bnn-code/` duplicate crate** — Was a full standalone copy with own `.git/`
@@ -34,6 +39,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **0-byte model placeholders** — Removed empty `.onnx` stubs that blocked downloads
 
 ### Fixed
+- **Corrupted `indexer/mod.rs`** — Fixed the `database()` accessor method that had duplicate syntax
 - **Model path mismatch** — Shell script saves `codeberta-small.onnx` but code expected `model.onnx`
 - **Editor plugin `fix` command** — Both Neovim and VS Code now pass the file path
 - **Graceful error handling** — Clear messages for missing models, empty git diffs, and missing files

@@ -18,15 +18,16 @@ function M.setup(opts)
 
     -- Create user commands
     local commands = {
-        { "BnnExplain",   M.explain,       {} },
-        { "BnnRefactor",  M.refactor,      {} },
-        { "BnnTest",      M.test,          {} },
-        { "BnnFix",       M.fix,           {} },
-        { "BnnCommit",    M.commit,        {} },
-        { "BnnReview",    M.review,        {} },
-        { "BnnDocument",  M.document,      {} },
-        { "BnnQuery",     M.query,         { nargs = "?" } },
-        { "BnnTerminal",  M.open_terminal, {} },
+        { "BnnExplain",    M.explain,       {} },
+        { "BnnRefactor",   M.refactor,      {} },
+        { "BnnTest",       M.test,          {} },
+        { "BnnFix",        M.fix,           {} },
+        { "BnnFixCodebase", M.fix_codebase, {} },
+        { "BnnCommit",     M.commit,        {} },
+        { "BnnReview",     M.review,        {} },
+        { "BnnDocument",   M.document,      {} },
+        { "BnnQuery",      M.query,         { nargs = "?" } },
+        { "BnnTerminal",   M.open_terminal, {} },
     }
 
     for _, cmd in ipairs(commands) do
@@ -38,7 +39,8 @@ function M.setup(opts)
     vim.keymap.set("v", "<leader>br", M.refactor,   { desc = "BNN: Refactor selection" })
     vim.keymap.set("v", "<leader>bt", M.test,       { desc = "BNN: Generate tests" })
     vim.keymap.set("v", "<leader>bd", M.document,   { desc = "BNN: Generate docs" })
-    vim.keymap.set("n", "<leader>bf", M.fix,        { desc = "BNN: Fix errors" })
+    vim.keymap.set("n", "<leader>bf", M.fix,        { desc = "BNN: Fix current file" })
+    vim.keymap.set("n", "<leader>bF", M.fix_codebase, { desc = "BNN: Fix entire codebase" })
     vim.keymap.set("n", "<leader>bc", M.commit,     { desc = "BNN: Commit message" })
     vim.keymap.set("n", "<leader>brv", M.review,    { desc = "BNN: Review changes" })
     vim.keymap.set("n", "<leader>bq", function()
@@ -187,6 +189,11 @@ function M.test()
 end
 
 function M.fix()
+    local file = get_current_file()
+    execute_bnn({ "fix", file, "--path", M.config.codebase_path })
+end
+
+function M.fix_codebase()
     execute_bnn({ "fix", "--path", M.config.codebase_path })
 end
 
@@ -212,7 +219,8 @@ function M.commit()
 end
 
 function M.review()
-    execute_bnn({ "review", "--path", M.config.codebase_path })
+    local file = get_current_file()
+    execute_bnn({ "review", file, "--path", M.config.codebase_path })
 end
 
 function M.document()

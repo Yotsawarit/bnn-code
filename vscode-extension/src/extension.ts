@@ -72,13 +72,23 @@ async function runBnn(command: string) {
             args = ['test', editor.document.fileName];
             break;
         case 'fix':
-            args = ['fix'];
+            // Pass file if there is a selection, otherwise scan codebase
+            if (text) {
+                args = ['fix', editor.document.fileName];
+            } else {
+                args = ['fix'];
+            }
             break;
         case 'commit':
             args = ['commit'];
             break;
         case 'review':
-            args = ['review'];
+            // Pass file if there is a selection, otherwise review diff
+            if (text) {
+                args = ['review', editor.document.fileName];
+            } else {
+                args = ['review'];
+            }
             break;
         case 'document':
             args = ['document', editor.document.fileName];

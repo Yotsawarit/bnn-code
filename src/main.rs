@@ -28,24 +28,116 @@ async fn main() -> Result<()> {
     match cli.command {
         Some(Commands::Explain { file }) => {
             println!("🧠 Explaining file: {}", file);
-            // TODO: Implement explain logic
-            let content = std::fs::read_to_string(&file)?;
-            println!("\n📄 File: {}", file);
-            println!("{}", content);
+            let response = inference::run_inference_on_file("explain", &file,
+                "Explain the purpose, architecture, and key functions of the following code.")
+                .await?;
+            println!("\n📖 Explanation:\n{}", response);
         }
         Some(Commands::Refactor { file }) => {
             println!("🧠 Refactoring file: {}", file);
-            // TODO: Implement refactor logic
-            println!("Analysis complete. Suggested refactoring will be available in a future release.");
+            let response = inference::run_inference_on_file("refactor", &file,
+                "Suggest refactoring improvements for the following code. \
+                 Focus on readability, maintainability, and performance.")
+                .await?;
+            println!("\n🔧 Refactoring suggestions:\n{}", response);
         }
         Some(Commands::Test { file }) => {
             println!("🧠 Generating tests for: {}", file);
-            // TODO: Implement test generation logic
-            println!("Test generation will be available in a future release.");
+            let response = inference::run_inference_on_file("test", &file,
+                "Generate comprehensive unit tests for the following code. \
+                 Include edge cases and use the appropriate testing framework.")
+                .await?;
+            println!("\n🧪 Generated tests:\n{}", response);
         }
         Some(Commands::Init) => {
             println!("🧠 Initializing BNN Code in current directory...");
             utils::init_project()?;
+        }
+        Some(Commands::Fix { file }) => {
+            match file {
+                Some(f) => {
+                    println!("🧠 Fixing file: {}", f);
+                    let response = inference::run_inference_on_file("fix", &f,
+                        "Fix bugs, errors, and issues in the following code.")
+                        .await?;
+                    println!("\n✅ Fix suggestions:\n{}", response);
+                }
+                None => {
+                    println!("🧠 Fixing codebase (scanning all files)...");
+                    let response = inference::run_inference_on_codebase("fix",
+                        "Scan the entire codebase and fix all bugs, errors, and issues found.")
+                        .await?;
+                    println!("\n✅ Fix suggestions:\n{}", response);
+                }
+            }
+        }
+        Some(Commands::Commit) => {
+            println!("🧠 Generating commit message from staged changes...");
+            // Read git diff --cached
+            let diff_output = std::process::Command::new("git")
+                .args(["diff", "--cached"])
+                .output()
+                .map_err(|e| anyhow::anyhow!("Failed to run git diff: {}. Are you in a git repository?", e))?;
+
+            if !diff_output.status.success() {
+                anyhow::bail!("git diff --cached failed. Make sure you're in a git repo with staged changes.");
+            }
+
+            let diff = String::from_utf8_lossy(&diff_output.stdout);
+            if diff.trim().is_empty() {
+                anyhow::bail!("No staged changes found. Run `git add` first.");
+            }
+
+            let prompt = format!(
+                "Generate a concise, conventional commit message for the following git diff.\n\
+                 Follow the Conventional Commits format (type(scope): description).\n\n{}",
+                diff
+            );
+            let response = inference::run_inference(&prompt, &[]).await?;
+            println!("\n📝 Suggested commit message:\n");
+            println!("{}", response);
+            println!("\n💡 Tip: Use `git commit -m \"...\"` with the message above.");
+        }
+        Some(Commands::Review { file }) => {
+            match file {
+                Some(f) => {
+                    println!("🧠 Reviewing file: {}", f);
+                    let response = inference::run_inference_on_file("review", &f,
+                        "Review the following code for bugs, security vulnerabilities, \
+                         performance issues, and suggest improvements.")
+                        .await?;
+                    println!("\n📋 Review Results:\n{}", response);
+                }
+                None => {
+                    println!("🧠 Reviewing staged changes...");
+                    let diff_output = std::process::Command::new("git")
+                        .args(["diff", "--cached"])
+                        .output()
+                        .map_err(|e| anyhow::anyhow!("Failed to run git diff: {}", e))?;
+
+                    let diff = String::from_utf8_lossy(&diff_output.stdout);
+                    if diff.trim().is_empty() {
+                        anyhow::bail!("No staged changes to review. Run `git add` first or specify a file.");
+                    }
+
+                    let prompt = format!(
+                        "Review the following git diff for bugs, security issues, \
+                         and code quality problems. Provide specific recommendations.\n\n{}",
+                        diff
+                    );
+                    let response = inference::run_inference(&prompt, &[]).await?;
+                    println!("\n📋 Review Results:\n{}", response);
+                }
+            }
+        }
+        Some(Commands::Document { file }) => {
+            println!("🧠 Generating documentation for: {}", file);
+            let response = inference::run_inference_on_file("document", &file,
+                "Generate comprehensive documentation for the following code.\n\
+                 Include docstrings, function descriptions, parameter explanations, \
+                 and usage examples where appropriate.")
+                .await?;
+            println!("\n📖 Documentation:\n{}", response);
         }
         Some(Commands::Rogue { category, json }) => {
             use rogue::{RogueEngine, format_report};

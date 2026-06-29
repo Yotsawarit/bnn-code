@@ -37,7 +37,7 @@ impl CodebaseIndexer {
 
     /// Get a reference to the underlying database for search operations
     #[allow(dead_code)]
-    pub fn database(pub fn database(&self) -> &database::CodeDatabase {self) -> pub fn database(&self) -> &database::CodeDatabase {database::CodeDatabase {
+    pub fn database(&self) -> &database::CodeDatabase {
         &self.database
     }
 

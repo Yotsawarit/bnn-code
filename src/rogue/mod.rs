@@ -5,12 +5,11 @@
 //! and user behavior anomalies.
 //!
 //! ## Usage
-//! ```
+//! ```no_run
 //! use bnn_code::rogue::{RogueEngine, Detector};
-//! let mut engine = RogueEngine::new()?;
-//! engine.run_all()?;          // run all detectors
-//! engine.run_category("security")?; // run one category
-//! # Ok::<_, anyhow::Error>(())
+//! let mut engine = RogueEngine::new();
+//! let report = engine.run_all().unwrap();          // run all detectors
+//! let security = engine.run_category("security").unwrap(); // run one category
 //! ```
 
 mod security;

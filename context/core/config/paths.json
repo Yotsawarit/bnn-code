@@ -1,0 +1,7 @@
+{
+  "description": "Additional context file paths - agents load this via @ reference for dynamic pathing",
+  "paths": {
+    "local": "/media/pac_tz12/1c9c6a9e-8fe9-4e3b-bdb5-41056ff08bd43/home/pack/pac-station/bnn-code/context",
+    "global": "~/.config/opencode/context"
+  }
+}
