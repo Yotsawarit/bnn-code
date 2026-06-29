@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+#![allow(dead_code)]
 use ratatui::{
     layout::{Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
