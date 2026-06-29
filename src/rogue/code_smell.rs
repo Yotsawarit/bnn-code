@@ -167,7 +167,7 @@ impl CodeSmellDetector {
     /// Detect deeply nested code (high cyclomatic complexity)
     fn check_nesting_depth(&mut self, file_path: &str, lines: &[&str]) {
         let mut max_depth = 0;
-        let mut current_depth = 0;
+        let mut current_depth: usize = 0;
         let mut depth_line = 0;
 
         for (i, line) in lines.iter().enumerate() {
@@ -180,7 +180,7 @@ impl CodeSmellDetector {
             // Also check Python indentation
             let indent = line.len() - line.trim_start().len();
 
-            current_depth = current_depth + opens - closes;
+            current_depth = current_depth.saturating_add(opens).saturating_sub(closes);
 
             if current_depth > max_depth {
                 max_depth = current_depth;
@@ -372,7 +372,7 @@ impl CodeSmellDetector {
                 func_lines = 0;
             }
 
-            brace_depth = brace_depth + opens - closes;
+            brace_depth = brace_depth.saturating_add(opens).saturating_sub(closes);
             func_lines += 1;
 
             if brace_depth == 0 && func_lines > 60 {
