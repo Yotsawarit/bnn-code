@@ -26,3 +26,10 @@ models/*.json
 
 # ── Logs ───────────────────────────────────────────
 *.log
+
+# Python venv
+.venv/
+
+# Large model files
+*.onnx.data
+models/*.onnx.data
