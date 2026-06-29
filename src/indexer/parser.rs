@@ -2,6 +2,7 @@ use anyhow::Result;
 
 /// Represents a code symbol (function, class, method)
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct CodeSymbol {
     pub name: String,
     pub kind: SymbolKind,
@@ -25,6 +26,7 @@ pub enum SymbolKind {
 pub struct AstParser;
 
 /// Convenience alias
+#[allow(dead_code)]
 pub type CodeParser = AstParser;
 
 impl AstParser {

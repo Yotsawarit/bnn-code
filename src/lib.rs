@@ -11,3 +11,9 @@ pub mod retrieval;
 pub mod rogue;
 pub mod ui;
 pub mod utils;
+
+#[allow(dead_code)]
+pub mod ui;
+
+#[allow(dead_code)]
+pub mod utils;

@@ -13,6 +13,7 @@ pub struct CodeChunk {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[allow(dead_code)]
 pub enum ChunkType {
     Function,
     Class,

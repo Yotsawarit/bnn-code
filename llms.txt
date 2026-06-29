@@ -1,0 +1,128 @@
+# BNN Code
+
+> Terminal-native AI coding agent powered by Binarized Neural Networks (BNNs). Indexes codebases with AST-aware chunking, retrieves relevant context via SQLite FTS5, and runs on-device inference through ONNX Runtime. Includes VS Code and Neovim editor plugins.
+
+## Core Files
+
+- `src/main.rs` — Entry point: CLI parsing, command dispatch, run_query() and run_inference_on_file() helpers
+- `src/cli.rs` — Clap-based CLI definition: Cli struct, Commands enum (explain, refactor, test, fix, commit, review, document, init, rogue)
+- `src/lib.rs` — Crate root
+- `src/repl.rs` — Interactive REPL mode
+
+### Indexing & Retrieval
+
+- `src/indexer/mod.rs` — CodebaseIndexer: walks directory tree, parses files with tree-sitter, chunks semantically, stores in SQLite
+- `src/indexer/parser.rs` — AstParser: line-based heuristic parsing (default) or tree-sitter AST parsing (with `--features tree-sitter`) for Python, JS, TS, Rust, Go, Java, C++, Kotlin, Ruby, Swift
+- `src/indexer/chunker.rs` — SemanticChunker: splits source into function/class/module-level chunks
+- `src/indexer/database.rs` — CodeDatabase: SQLite with FTS5 full-text search, WAL mode, triggers
+- `src/retrieval/search.rs` — keyword_search() with FTS5
+- `src/retrieval/reranker.rs` — scores and re-orders chunks by query similarity
+
+### Inference Engine
+
+- `src/inference/mod.rs` — generate() entry point: creates BnnInference and runs prompt
+- `src/inference/bnn.rs` — BnnInference struct: prompt construction, tokenization, ONNX run, decode. Auto-discovers any .onnx in models/ dir.
+- `src/inference/onnx.rs` — OnnxEngine: wraps ort::Session for ONNX Runtime inference
+- `src/inference/tokenizer.rs` — Tokenizer: HuggingFace tokenizer encode/decode
+
+### Rogue Detection
+
+- `src/rogue/mod.rs` — RogueEngine: runs all Detector implementations, produces RogueReport
+- `src/rogue/security.rs` — SecurityDetector: IP scanning, port scanning, hex IP detection
+- `src/rogue/code_smell.rs` — CodeSmellDetector: hardcoded secrets, deep nesting, unsafe code, TODOs
+- `src/rogue/ai_output.rs` — AIOutputDetector: harmful content, jailbreak attempts, SQL injection
+- `src/rogue/user_behavior.rs` — UserBehaviorDetector: dangerous commands, credential access, exfiltration, privilege escalation
+
+### Utilities & UI
+
+- `src/utils/config.rs` — BnnConfig: JSON config file management
+- `src/utils/cache.rs` — file-based cache keyed by path + metadata hash
+- `src/ui/streaming.rs` — StreamHandler: token-by-token output callback
+- `src/ui/terminal.rs` — ratatui-based TUI terminal (AppState, render)
+- `src/ui/mod.rs` — init_terminal / restore_terminal helpers
+
+## CLI Commands
+
+| Command | Arguments | Description |
+|---------|-----------|-------------|
+| `bnn-code explain <FILE>` | file: String | Explain a file's purpose, architecture, and key functions |
+| `bnn-code refactor <FILE>` | file: String | Suggest refactoring improvements |
+| `bnn-code test <FILE>` | file: String | Generate unit tests |
+| `bnn-code fix [FILE]` | file: Option\<String\> | Fix bugs/errors; scans codebase if no file given |
+| `bnn-code commit` | none | Generate commit message from `git diff --cached` |
+| `bnn-code review [FILE]` | file: Option\<String\> | Review code for bugs/security/performance; reviews diff if no file |
+| `bnn-code document <FILE>` | file: String | Generate docstrings and documentation |
+| `bnn-code init` | none | Initialize .bnn/ project config |
+| `bnn-code rogue` | --category, --json | Run security/code/AI/user behavior anomaly detection |
+| `bnn-code <query>` | free text | One-shot Q&A with codebase context |
+| `bnn-code` (no args) | none | Launch interactive REPL |
+
+Global options: `--path`, `--model`, `--verbose`, `--no-stream`
+
+## Configuration
+
+File: `.bnn/config.json` (created by `bnn-code init`)
+
+```json
+{
+  "model": "default",
+  "indexing": { "max_file_size_kb": 512, "exclude_patterns": ["node_modules", "target", ".git"] },
+  "cache": { "enabled": true, "max_entries": 1000 }
+}
+```
+
+## Editor Integrations
+
+- `nvim-plugin/lua/bnn/init.lua` — 9 user commands (BnnExplain, BnnRefactor, BnnTest, BnnFix, BnnCommit, BnnReview, BnnDocument, BnnQuery, BnnTerminal) with keymaps and floating window output
+- `vscode-extension/src/extension.ts` — 9 commands registered in VS Code, context menu for explain/refactor/test/document, status bar, output channel
+
+## Model
+
+ONNX model files go in `models/`. BNN Code auto-discovers any `.onnx` file. Download:
+
+```bash
+# Shell script (pre-built ONNX from GitHub releases)
+bash scripts/download_model.sh --auto
+
+# Python script (download from HuggingFace + convert to ONNX)
+python3 scripts/download_model.py
+```
+
+Default: `huggingface/CodeBERTa-small-v1` (84M params, 6-layer RoBERTa, masked LM)
+
+## Build & Test
+
+```bash
+cargo build --release
+cargo test
+cargo clippy
+```
+
+## Dependencies
+
+- clap 4.x — CLI argument parsing
+- anyhow — error handling
+- tokio — async runtime
+- ort — ONNX Runtime bindings
+- ndarray — tensor operations
+- tree-sitter — AST parsing (Python, JS, TS, Rust, Go, Java, C++, Ruby, Swift, Kotlin)
+- rusqlite — SQLite with FTS5
+- ratatui + crossterm — terminal UI
+- tracing — structured logging
+
+## References
+
+- [The Agentic Leaderboard](https://www.theagenticleaderboard.com) — Weekly ranking of top 100 open-source AI agents
+- [ONNX Runtime](https://github.com/microsoft/onnxruntime) — Cross-platform ML inference
+- [tree-sitter](https://github.com/tree-sitter/tree-sitter) — Incremental parsing library
+
+## Citation
+
+```bibtex
+@software{bnncode2026,
+  title = {BNN Code: Terminal-Native AI Coding Agent},
+  author = {Yotsawarit Pudpong},
+  year = {2026},
+  url = {https://github.com/Yotsawarit/bnn-code}
+}
+```
