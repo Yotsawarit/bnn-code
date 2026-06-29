@@ -132,7 +132,7 @@ fn test_database_full_pipeline() {
     use bnn_code::indexer::chunker::{CodeChunk, ChunkType};
     use bnn_code::indexer::database::CodeDatabase;
 
-    let db = CodeDatabase::new().unwrap();
+    let db = CodeDatabase::open_in_memory().unwrap();
 
     // Store chunks
     let chunks = vec![
@@ -156,7 +156,7 @@ fn test_database_full_pipeline() {
     assert_eq!(db.chunk_count().unwrap(), 2);
 
     // Search
-    let results = db.search_by_keyword("calculate").unwrap();
+    let results = db.search_by_keyword("calculate", 20).unwrap();
     assert_eq!(results.len(), 1);
 
     // Get file chunks
@@ -254,12 +254,12 @@ fn calculate_sum(a: i32, b: i32) -> i32 {
     assert_eq!(chunks.len(), 2);
 
     // Step 3: Store
-    let db = CodeDatabase::new().unwrap();
+    let db = CodeDatabase::open_in_memory().unwrap();
     db.store_chunks("lib.rs", source, &chunks).unwrap();
     assert_eq!(db.chunk_count().unwrap(), 2);
 
     // Step 4: Search
-    let db_results = db.search_by_keyword("calculate").unwrap();
+    let db_results = db.search_by_keyword("calculate", 20).unwrap();
     assert_eq!(db_results.len(), 1);
     assert_eq!(db_results[0].symbol_name.as_deref(), Some("calculate_sum"));
 
