@@ -36,14 +36,9 @@ impl CodebaseIndexer {
     }
 
     /// Get a reference to the underlying database for search operations
-<<<<<<< HEAD
     #[allow(dead_code)]
-    pub fn database(    pub fn database(&self) -> &database::CodeDatabase {self) ->     pub fn database(&self) -> &database::CodeDatabase {database::CodeDatabase {
-=======
-    #[allow(dead_code)]
-    pub fn database(pub fn database(&self) -> &database::CodeDatabase {self) -> pub fn database(&self) -> &database::CodeDatabase {database::CodeDatabase {
->>>>>>> fix/retrieval-real-search
-        &self.database
+    pub fn database(&self) -> &database::CodeDatabase {
+    }
     }
 
     pub async fn index(&mut self) -> Result<usize> {
