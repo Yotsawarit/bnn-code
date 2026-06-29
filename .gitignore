@@ -33,3 +33,13 @@ models/*.json
 # Large model files
 *.onnx.data
 models/*.onnx.data
+
+# Python
+.venv/
+*.pyc
+__pycache__/
+
+# Large model files
+*.onnx.data
+*.onnx
+models/*.onnx*
