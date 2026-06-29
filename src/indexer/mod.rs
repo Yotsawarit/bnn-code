@@ -25,7 +25,7 @@ impl CodebaseIndexer {
     pub fn new(root_path: &str) -> Result<Self> {
         let parser = parser::AstParser::new()?;
         let chunker = chunker::SemanticChunker::new(50);
-        let database = database::CodeDatabase::new()?;
+        let database = database::CodeDatabase::open_default()?;
 
         Ok(Self {
             root_path: root_path.to_string(),
@@ -33,6 +33,11 @@ impl CodebaseIndexer {
             chunker,
             database,
         })
+    }
+
+    /// Get a reference to the underlying database for search operations
+    pub fn database(&self) -> &database::CodeDatabase {
+        &self.database
     }
 
     pub async fn index(&mut self) -> Result<usize> {
