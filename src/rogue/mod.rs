@@ -64,6 +64,9 @@ pub struct Finding {
 }
 
 /// Detector trait — all detectors implement this
+#[allow(dead_code)]
+#[allow(dead_code)]
+#[allow(dead_code)]
 pub trait Detector {
     /// Human-readable name
     fn name(&self) -> &str;

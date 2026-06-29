@@ -87,7 +87,7 @@ async fn run_query(query: &str, path: &str) -> Result<()> {
     println!("✓ Indexed {} chunks", num_chunks);
 
     // Step 2: Retrieve context
-    let context = retrieval::search(query, &indexer, 3).await?;
+    let context = retrieval::search(query, 3).await?;
     println!("✓ Retrieved {} relevant chunks", context.len());
 
     // Step 3: Generate response

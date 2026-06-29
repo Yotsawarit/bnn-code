@@ -1,0 +1,7 @@
+#!/media/pac_tz12/1c9c6a9e-8fe9-4e3b-bdb5-41056ff08bd43/home/pack/pac-station/bnn-code/.venv/bin/python3
+import sys
+from pip._internal.cli.main import main
+if __name__ == '__main__':
+    if sys.argv[0].endswith('.exe'):
+        sys.argv[0] = sys.argv[0][:-4]
+    sys.exit(main())

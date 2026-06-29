@@ -1,0 +1,41 @@
+{
+  "version": "0.1.0",
+  "model": {
+    "path": "models/model.onnx",
+    "max_tokens": 4096,
+    "temperature": 0.7,
+    "top_k": 40
+  },
+  "indexing": {
+    "max_file_size_kb": 100,
+    "exclude_dirs": [
+      "node_modules",
+      "target",
+      ".git",
+      "venv",
+      "__pycache__"
+    ],
+    "include_extensions": [
+      "rs",
+      "py",
+      "js",
+      "ts",
+      "tsx",
+      "jsx",
+      "go",
+      "java",
+      "cpp",
+      "c",
+      "h",
+      "hpp",
+      "rb",
+      "swift",
+      "kt"
+    ]
+  },
+  "ui": {
+    "theme": "dark",
+    "show_context": true,
+    "stream_output": true
+  }
+}

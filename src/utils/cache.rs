@@ -1,3 +1,6 @@
+#![allow(dead_code)]
+#![allow(dead_code)]
+#![allow(dead_code)]
 use anyhow::Result;
 use std::hash::{Hash, Hasher};
 use std::path::PathBuf;

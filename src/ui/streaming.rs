@@ -1,3 +1,6 @@
+#![allow(dead_code)]
+#![allow(dead_code)]
+#![allow(dead_code)]
 use std::io::{self, Write};
 
 /// Streaming output handler for token-by-token display
