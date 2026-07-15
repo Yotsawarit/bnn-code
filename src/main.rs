@@ -28,23 +28,40 @@ async fn main() -> Result<()> {
 
     match cli.command {
         Some(Commands::Explain { file }) => {
-            println!("🧠 Explaining file: {}", file);
-            // TODO: Implement explain logic
+            println!("🧠 Explaining: {}", file);
             let content = std::fs::read_to_string(&file)?;
-            println!("\n📄 File: {}", file);
-            println!("{}", content);
+            let prompt = format!(
+                "Explain the following code. Describe what it does, \
+                 its main components, and how they fit together:\n\n```rust\n{}\n```",
+                content
+            );
+            let response = inference::generate_with_model(&prompt, &[], &cli.model).await?;
+            println!("{}", response);
         }
         Some(Commands::Refactor { file }) => {
-            println!("🧠 Refactoring file: {}", file);
-            // TODO: Implement refactor logic
-            println!(
-                "Analysis complete. Suggested refactoring will be available in a future release."
+            println!("🧠 Refactoring: {}", file);
+            let content = std::fs::read_to_string(&file)?;
+            let prompt = format!(
+                "Suggest refactoring improvements for the following code. \
+                 Identify code smells, duplication, complexity, or style issues, \
+                 and provide concrete before/after suggestions:\n\n```rust\n{}\n```",
+                content
             );
+            let response = inference::generate_with_model(&prompt, &[], &cli.model).await?;
+            println!("{}", response);
         }
         Some(Commands::Test { file }) => {
             println!("🧠 Generating tests for: {}", file);
-            // TODO: Implement test generation logic
-            println!("Test generation will be available in a future release.");
+            let content = std::fs::read_to_string(&file)?;
+            let prompt = format!(
+                "Generate comprehensive unit tests for the following Rust code. \
+                 Include tests for normal cases, edge cases, and error conditions. \
+                 Use #[cfg(test)] mod tests with #[test] functions. \
+                 Only output the test code:\n\n```rust\n{}\n```",
+                content
+            );
+            let response = inference::generate_with_model(&prompt, &[], &cli.model).await?;
+            println!("{}", response);
         }
         Some(Commands::Init) => {
             println!("🧠 Initializing BNN Code in current directory...");
