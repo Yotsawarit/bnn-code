@@ -6,6 +6,8 @@ use std::fs;
 use std::io::Read;
 use std::path::Path;
 
+use super::config::ModelConfig;
+
 const MIN_MODEL_BYTES: u64 = 64;
 const ONNX_MAGIC_BYTE: u8 = 0x08;
 
@@ -100,6 +102,52 @@ impl OnnxEngine {
 
         tracing::info!("ONNX model loaded successfully");
         Ok(Self { session })
+    }
+
+    /// Validate model I/O against the expected config
+    pub fn validate_io(&self, config: &ModelConfig) -> Result<()> {
+        let inputs = self.session.inputs();
+        let outputs = self.session.outputs();
+
+        let input_names: Vec<&str> = inputs.iter().map(|i| i.name()).collect();
+        let output_names: Vec<&str> = outputs.iter().map(|o| o.name()).collect();
+
+        if !input_names.contains(&"input_ids") {
+            bail!(
+                "ONNX model missing 'input_ids'. Found inputs: {:?}",
+                input_names
+            );
+        }
+        if !input_names.contains(&"attention_mask") {
+            bail!(
+                "ONNX model missing 'attention_mask'. Found inputs: {:?}",
+                input_names
+            );
+        }
+        if output_names.is_empty() {
+            bail!("ONNX model has no output tensors");
+        }
+
+        if let Some(vocab) = config.vocab_size {
+            if let Some(output) = outputs.first() {
+                if let Some(shape) = output.dtype().tensor_shape() {
+                    if let Some(last) = shape.last() {
+                        let last_val = *last as usize;
+                        if last_val > 0 && last_val != vocab && last_val > vocab * 2 {
+                            bail!(
+                                "Output vocab dimension {} doesn't match config vocab_size {}. \
+                                 The model may be incompatible with this config.",
+                                last_val,
+                                vocab
+                            );
+                        }
+                    }
+                }
+            }
+        }
+
+        tracing::info!("ONNX I/O validated: inputs={input_names:?}, outputs={output_names:?}");
+        Ok(())
     }
 
     pub fn run(
