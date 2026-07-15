@@ -74,6 +74,18 @@ pub enum Commands {
         #[arg(short, long)]
         json: bool,
     },
+    /// Generate a commit message from staged changes
+    Commit,
+    /// Review code for bugs, security, and performance issues
+    Review {
+        /// File to review (optional — reviews staged diff if omitted)
+        file: Option<String>,
+    },
+    /// Generate documentation for a file
+    Document {
+        /// File to document
+        file: String,
+    },
 }
 
 #[cfg(test)]

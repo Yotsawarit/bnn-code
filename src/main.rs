@@ -136,6 +136,69 @@ async fn main() -> Result<()> {
                 println!("{}", format_report(&report, true));
             }
         }
+        Some(Commands::Commit) => {
+            println!("🧠 Generating commit message...");
+            let output = std::process::Command::new("git")
+                .args(["diff", "--cached"])
+                .output()?;
+            let diff = String::from_utf8_lossy(&output.stdout);
+            if diff.trim().is_empty() {
+                println!("No staged changes. Run `git add` first.");
+            } else {
+                let prompt = format!(
+                    "Generate a concise git commit message for the following diff. \
+                     Use conventional commit format (feat:, fix:, chore:, docs:). \
+                     Only output the commit message, nothing else:\n\n{}",
+                    diff
+                );
+                let response = inference::generate_with_model(&prompt, &[], &cli.model).await?;
+                println!("{}", response);
+            }
+        }
+        Some(Commands::Review { file }) => {
+            if let Some(path) = file {
+                println!("🧠 Reviewing: {}", path);
+                let content = std::fs::read_to_string(&path)?;
+                let prompt = format!(
+                    "Review the following code for bugs, security vulnerabilities, \
+                     performance issues, and style problems. Rate severity (critical/high/medium/low) \
+                     and provide specific fix suggestions:\n\n```rust\n{}\n```",
+                    content
+                );
+                let response = inference::generate_with_model(&prompt, &[], &cli.model).await?;
+                println!("{}", response);
+            } else {
+                println!("🧠 Reviewing staged changes...");
+                let output = std::process::Command::new("git")
+                    .args(["diff", "--cached"])
+                    .output()?;
+                let diff = String::from_utf8_lossy(&output.stdout);
+                if diff.trim().is_empty() {
+                    println!("No staged changes. Run `git add` first, or specify a file.");
+                } else {
+                    let prompt = format!(
+                        "Review the following diff for bugs, security issues, and code quality. \
+                         Rate severity and suggest improvements:\n\n{}",
+                        diff
+                    );
+                    let response = inference::generate_with_model(&prompt, &[], &cli.model).await?;
+                    println!("\n✨ Review:\n{}", response);
+                }
+            }
+        }
+        Some(Commands::Document { file }) => {
+            println!("🧠 Documenting: {}", file);
+            let content = std::fs::read_to_string(&file)?;
+            let prompt = format!(
+                "Generate comprehensive Rust documentation for the following code. \
+                 Include module-level doc comments, function doc comments with # Arguments, \
+                 # Returns, # Errors, # Examples sections where appropriate. \
+                 Only output the documented code:\n\n```rust\n{}\n```",
+                content
+            );
+            let response = inference::generate_with_model(&prompt, &[], &cli.model).await?;
+            println!("{}", response);
+        }
         None => {
             // Interactive or one-shot mode
             if let Some(query) = cli.query {
