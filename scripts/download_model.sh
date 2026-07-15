@@ -15,11 +15,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 MODELS_DIR="$(dirname "$SCRIPT_DIR")/models"
-RELEASE_URL="https://github.com/bnn-code/models/releases/download/v0.1.0"
+RELEASE_URL="https://github.com/Yotsawarit/models/releases/download/v0.1.0"
 
 # ── Model configurations ──────────────────────────────────────────
 declare -A MODELS
-MODELS["codeberta-small"]="CodeBERTa-small-v1|codeberta-small.onnx|84M params, 6-layer RoBERTa"
+MODELS["codeberta-small"]="CodeBERTa-small-v1|model.onnx|84M params, 6-layer RoBERTa"
 MODELS["codebert-base"]="CodeBERT-base|codebert-base.onnx|125M params, 12-layer BERT"
 MODELS["codebert-quantized"]="CodeBERT-base-quantized|codebert-base-quantized.onnx|Quantized (INT8) CodeBERT"
 
