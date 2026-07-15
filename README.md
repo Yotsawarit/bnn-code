@@ -77,14 +77,26 @@ bnn-code "How does the authentication flow work?"
 # Start interactive REPL
 bnn-code
 
+# Explain a file
+bnn-code explain src/main.rs
+
+# Fix bugs in a file
+bnn-code fix src/main.rs
+
+# Generate commit message from staged changes
+git add -A && bnn-code commit
+
+# Review code
+bnn-code review src/inference/mod.rs
+
+# Generate documentation
+bnn-code document src/math.rs
+
 # Compute π to 500 decimal places
 bnn-code pi --digits 500
 
 # Run anomaly detection
 bnn-code rogue
-
-# Explain a specific file
-bnn-code explain src/main.rs
 ```
 
 ## Editor Integrations
@@ -131,9 +143,13 @@ python3 scripts/download_model.py --model codeberta-small
 | Command | Description |
 |---------|-------------|
 | `bnn-code [query]` | One-shot AI query or launch REPL (no query) |
-| `bnn-code explain <file>` | Explain a file or function |
+| `bnn-code explain <file>` | Explain a file's purpose, architecture, and key functions |
 | `bnn-code refactor <file>` | Suggest refactoring improvements |
 | `bnn-code test <file>` | Generate unit tests |
+| `bnn-code fix [file]` | Fix bugs/errors; scans codebase if no file given |
+| `bnn-code commit` | Generate commit message from `git diff --cached` |
+| `bnn-code review [file]` | Review code for bugs/security/performance; reviews diff if no file |
+| `bnn-code document <file>` | Generate docstrings and documentation |
 | `bnn-code init` | Initialize BNN Code in current project |
 | `bnn-code pi` | Compute π (Chudnovsky/Ramanujan, arbitrary precision) |
 | `bnn-code rogue` | Run anomaly detection (security, code smells, AI, user behavior) |
