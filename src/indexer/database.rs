@@ -57,6 +57,7 @@ impl CodeDatabase {
     }
 
     /// Open an **in-memory** database (used in tests only).
+    #[allow(dead_code)]
     pub fn open_in_memory() -> Result<Self> {
         let conn = Connection::open_in_memory()
             .context("Failed to open in-memory SQLite database")?;
@@ -167,6 +168,7 @@ impl CodeDatabase {
         Ok(results)
     }
 
+    #[allow(dead_code)]
     pub fn get_file_chunks(&self, file_path: &str) -> Result<Vec<CodeChunk>> {
         let mut stmt = self.conn.prepare(
             "SELECT content, start_line, end_line, symbol_name, chunk_type
@@ -191,6 +193,7 @@ impl CodeDatabase {
         Ok(results)
     }
 
+    #[allow(dead_code)]
     pub fn chunk_count(&self) -> Result<usize> {
         let count: i64 = self.conn
             .query_row("SELECT COUNT(*) FROM chunks", [], |row| row.get(0))

@@ -11,7 +11,7 @@ const ONNX_MAGIC_BYTE: u8 = 0x08;
 
 pub fn cpu_supports_sse42() -> bool {
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    { return is_x86_feature_detected!("sse4.2"); }
+    { is_x86_feature_detected!("sse4.2") }
     #[cfg(not(any(target_arch = "x86_64", target_arch = "x86")))]
     { return true; }
 }

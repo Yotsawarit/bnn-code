@@ -283,6 +283,6 @@ fn test_onnx_engine_load_model() {
     use bnn_code::inference::onnx::OnnxEngine;
     use std::path::Path;
 
-    let engine = OnnxEngine::new(Path::new("models/model.onnx")).unwrap();
+    let _engine = OnnxEngine::new(Path::new("models/model.onnx")).unwrap();
     // If this runs, model loaded successfully
 }

@@ -15,6 +15,7 @@ pub fn keyword_search(query: &str, top_k: usize) -> Result<Vec<CodeChunk>> {
 }
 
 /// Search using an already-open database (useful for testing and reuse).
+#[allow(dead_code)]
 pub fn keyword_search_with_db(
     query: &str,
     top_k: usize,

@@ -3,8 +3,6 @@ use anyhow::Result;
 /// Represents a code symbol (function, class, method)
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
-#[allow(dead_code)]
-#[allow(dead_code)]
 pub struct CodeSymbol {
     pub name: String,
     pub kind: SymbolKind,
@@ -28,8 +26,6 @@ pub enum SymbolKind {
 pub struct AstParser;
 
 /// Convenience alias
-#[allow(dead_code)]
-#[allow(dead_code)]
 #[allow(dead_code)]
 pub type CodeParser = AstParser;
 
@@ -55,35 +51,35 @@ impl AstParser {
             if *pattern == *"type " && trimmed.starts_with("type ") && trimmed.contains(" struct") {
                 // Go: "type X struct"
                 trimmed.strip_prefix("type ")?
-                    .split(|c: char| c == ' ' || c == '{')
+                    .split([' ', '{'])
                     .next()
                     .map(|s| s.to_string())
                     .filter(|s| !s.is_empty())
             } else if *pattern == *"type.interface" && trimmed.starts_with("type ") && trimmed.contains(" interface") {
                 // Go: "type X interface"
                 trimmed.strip_prefix("type ")?
-                    .split(|c: char| c == ' ' || c == '{')
+                    .split([' ', '{'])
                     .next()
                     .map(|s| s.to_string())
                     .filter(|s| !s.is_empty())
             } else if *pattern == *"const.*=>" && trimmed.starts_with("const ") && trimmed.contains("=>") {
                 // JS/TS arrow functions: "const X = (...) =>"
                 let after_const = trimmed.strip_prefix("const ")?;
-                after_const.split(|c: char| c == ' ' || c == '=' || c == '(')
+                after_const.split([' ', '=', '('])
                     .next()
                     .map(|s| s.to_string())
                     .filter(|s| !s.is_empty())
             } else if *pattern == *"typedef struct" && trimmed.starts_with("typedef struct") {
                 // C/C++/C#: "typedef struct X"
                 let rest = trimmed.strip_prefix("typedef struct")?.trim();
-                rest.split(|c: char| c == ' ' || c == '{')
+                rest.split([' ', '{'])
                     .next()
                     .map(|s| s.to_string())
                     .filter(|s| !s.is_empty())
             } else if trimmed.starts_with(pattern) {
                 // Default: simple prefix matching
                 let name = trimmed.strip_prefix(pattern)?
-                    .split(|c: char| c == '(' || c == '{' || c == ' ' || c == '<' || c == ':')
+                    .split(['(', '{', ' ', '<', ':'])
                     .next()
                     .unwrap_or("")
                     .to_string();
@@ -154,8 +150,8 @@ impl AstParser {
                         // Find end of block by counting braces
                         let mut brace_count = 0;
                         let mut end_line = i;
-                        for j in i..lines.len() {
-                            for c in lines[j].chars() {
+                        for (j, line) in lines.iter().enumerate().skip(i) {
+                            for c in line.chars() {
                                 match c {
                                     '{' => brace_count += 1,
                                     '}' => {
@@ -178,7 +174,7 @@ impl AstParser {
                         let doc_comment = if i > 0 {
                             let prev = lines[i - 1].trim();
                             if prev.starts_with("///") || prev.starts_with("# ") || prev.starts_with("// ") {
-                                Some(prev.trim_start_matches(|c: char| c == '/' || c == '#' || c == ' ').to_string())
+                                Some(prev.trim_start_matches(['/', '#', ' ']).to_string())
                             } else {
                                 None
                             }

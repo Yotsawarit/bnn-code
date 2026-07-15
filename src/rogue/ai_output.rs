@@ -419,7 +419,7 @@ impl AiRogueDetector {
                         description: format!(
                             "AI output from '{}' contains what appears to be a real {}: '{}...'. \
                              AI models should not output real personally identifiable information.",
-                            source, label, &matched.chars().take(20).collect::<String>()
+                            source, label, matched.chars().take(20).collect::<String>()
                         ),
                         confidence: 0.75,
                         location: Some(source.to_string()),

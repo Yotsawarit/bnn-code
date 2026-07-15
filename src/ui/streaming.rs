@@ -1,12 +1,16 @@
 #![allow(dead_code)]
-#![allow(dead_code)]
-#![allow(dead_code)]
 use std::io::{self, Write};
 
 /// Streaming output handler for token-by-token display
 pub struct StreamHandler {
     buffer: String,
     on_token: Box<dyn FnMut(&str)>,
+}
+
+impl Default for StreamHandler {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl StreamHandler {

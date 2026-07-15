@@ -65,8 +65,6 @@ pub struct Finding {
 
 /// Detector trait — all detectors implement this
 #[allow(dead_code)]
-#[allow(dead_code)]
-#[allow(dead_code)]
 pub trait Detector {
     /// Human-readable name
     fn name(&self) -> &str;
@@ -118,13 +116,12 @@ impl RogueEngine {
         let mut all_findings = Vec::new();
         for detector in &mut self.detectors {
             let cat = detector.name();
-            let matches = match (cat, normalized.as_str()) {
-                ("security", "security") | (_, "all") => true,
-                ("code_smell", "code_smell" | "code" | "smell") => true,
-                ("ai_rogue", "ai_rogue" | "ai" | "rogue") => true,
-                ("user_behavior", "user_behavior" | "user" | "behavior") => true,
-                _ => false,
-            };
+            let matches = matches!((cat, normalized.as_str()),
+                ("security", "security") | (_, "all") |
+                ("code_smell", "code_smell" | "code" | "smell") |
+                ("ai_rogue", "ai_rogue" | "ai" | "rogue") |
+                ("user_behavior", "user_behavior" | "user" | "behavior")
+            );
             if !matches {
                 continue;
             }

@@ -153,10 +153,7 @@ impl CodeSmellDetector {
                             ),
                             confidence: 0.85,
                             location: Some(format!("{}:{}", file_path, i + 1)),
-                            recommendation: format!(
-                                "Move to environment variables or a secrets manager. \
-                                 Use `git secrets` or `.env` with `.gitignore`."
-                            ),
+                            recommendation: "Move to environment variables or a secrets manager. Use `git secrets` or `.env` with `.gitignore`.".to_string(),
                         });
                     }
                 }
@@ -357,15 +354,15 @@ impl CodeSmellDetector {
 
     /// Detect large functions by analyzing brace depth
     fn check_large_functions(&mut self, file_path: &str, lines: &[&str]) {
-        let mut brace_depth = 0;
+        let mut brace_depth: i32 = 0;
         let mut func_start = 0;
         let mut func_lines = 0;
 
         for (i, line) in lines.iter().enumerate() {
             let trimmed = line.trim();
 
-            let opens = trimmed.matches('{').count();
-            let closes = trimmed.matches('}').count();
+            let opens = trimmed.matches('{').count() as i32;
+            let closes = trimmed.matches('}').count() as i32;
 
             if brace_depth == 0 && opens > 0 {
                 func_start = i + 1;
