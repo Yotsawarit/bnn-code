@@ -67,6 +67,38 @@ async fn main() -> Result<()> {
             println!("🧠 Initializing BNN Code in current directory...");
             utils::init_project()?;
         }
+        Some(Commands::Fix { file }) => {
+            if let Some(path) = file {
+                println!("🧠 Fixing: {}", path);
+                let content = std::fs::read_to_string(&path)?;
+                let prompt = format!(
+                    "Analyze the following code for bugs, errors, and potential issues. \
+                     For each issue found, provide the exact fix with line context. \
+                     If the code is clean, say so:\n\n```rust\n{}\n```",
+                    content
+                );
+                let response = inference::generate_with_model(&prompt, &[], &cli.model).await?;
+                println!("{}", response);
+            } else {
+                println!("🧠 Scanning codebase for errors...");
+                let output = std::process::Command::new("cargo")
+                    .args(["check", "--message-format=short"])
+                    .output()?;
+                let stderr = String::from_utf8_lossy(&output.stderr);
+                if stderr.trim().is_empty() {
+                    println!("No errors found. Codebase is clean.");
+                } else {
+                    println!("Found errors:\n{}", stderr);
+                    let prompt = format!(
+                        "The following Rust compiler errors were found. \
+                         Provide fixes for each error:\n\n{}",
+                        stderr
+                    );
+                    let response = inference::generate_with_model(&prompt, &[], &cli.model).await?;
+                    println!("\n✨ Suggested fixes:\n{}", response);
+                }
+            }
+        }
         Some(Commands::Pi {
             digits,
             algorithm,

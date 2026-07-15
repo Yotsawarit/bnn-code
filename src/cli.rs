@@ -46,6 +46,11 @@ pub enum Commands {
         /// File to test
         file: String,
     },
+    /// Fix bugs and errors in a file (or scan codebase if no file given)
+    Fix {
+        /// File to fix (optional — scans codebase if omitted)
+        file: Option<String>,
+    },
     /// Initialize BNN Code in current project
     Init,
     /// Compute π using Ramanujan/Chudnovsky formulas
