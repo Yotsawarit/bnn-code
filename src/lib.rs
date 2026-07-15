@@ -7,5 +7,7 @@ pub mod ui;
 #[allow(dead_code)]
 pub mod utils;
 
+pub mod math;
+
 #[allow(dead_code)]
 pub mod rogue;

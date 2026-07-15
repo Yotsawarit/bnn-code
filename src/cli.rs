@@ -48,6 +48,18 @@ pub enum Commands {
     },
     /// Initialize BNN Code in current project
     Init,
+    /// Compute π using Ramanujan/Chudnovsky formulas
+    Pi {
+        /// Number of decimal digits (default: 100)
+        #[arg(short, long, default_value = "100")]
+        digits: usize,
+        /// Algorithm: chudnovsky or ramanujan (default: chudnovsky)
+        #[arg(short, long, default_value = "chudnovsky")]
+        algorithm: String,
+        /// Benchmark mode — prints timing to stderr
+        #[arg(short, long)]
+        bench: bool,
+    },
     /// Run rogue detection (security, code, ai, user behavior anomalies)
     Rogue {
         /// Detection category: security|code|ai|user (default: all)

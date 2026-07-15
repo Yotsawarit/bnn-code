@@ -5,6 +5,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 mod cli;
 mod indexer;
 mod inference;
+mod math;
 mod repl;
 mod retrieval;
 mod rogue;
@@ -48,6 +49,29 @@ async fn main() -> Result<()> {
         Some(Commands::Init) => {
             println!("🧠 Initializing BNN Code in current directory...");
             utils::init_project()?;
+        }
+        Some(Commands::Pi {
+            digits,
+            algorithm,
+            bench,
+        }) => {
+            let pi = match algorithm.as_str() {
+                "ramanujan" => {
+                    if bench {
+                        math::benchmark_ramanujan(digits)
+                    } else {
+                        math::ramanujan_pi(digits)
+                    }
+                }
+                _ => {
+                    if bench {
+                        math::benchmark_chudnovsky(digits)
+                    } else {
+                        math::chudnovsky_pi(digits)
+                    }
+                }
+            };
+            println!("{}", pi);
         }
         Some(Commands::Rogue { category, json }) => {
             use rogue::{format_report, RogueEngine};
