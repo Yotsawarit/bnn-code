@@ -91,7 +91,7 @@ async fn main() -> Result<()> {
             // Interactive or one-shot mode
             if let Some(query) = cli.query {
                 // One-shot mode
-                run_query(&query, &cli.path).await?;
+                run_query(&query, &cli.path, &cli.model).await?;
             } else {
                 // REPL mode
                 repl::run_repl(cli.path).await?;
@@ -102,10 +102,11 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn run_query(query: &str, path: &str) -> Result<()> {
+async fn run_query(query: &str, path: &str, model: &str) -> Result<()> {
     println!("🧠 BNN Code");
     println!("Query: {}", query);
     println!("Path: {}", path);
+    println!("Model: {}", model);
 
     // Step 1: Index codebase
     let mut indexer = indexer::CodebaseIndexer::new(path)?;
@@ -117,7 +118,7 @@ async fn run_query(query: &str, path: &str) -> Result<()> {
     println!("✓ Retrieved {} relevant chunks", context.len());
 
     // Step 3: Generate response
-    let response = inference::generate(query, &context).await?;
+    let response = inference::generate_with_model(query, &context, model).await?;
     println!("\n✨ Response:\n{}", response);
 
     Ok(())
