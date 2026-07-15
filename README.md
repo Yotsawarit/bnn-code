@@ -68,17 +68,23 @@ cargo build --release
 ## Quick Start
 
 ```bash
-# Index your codebase
-bnn-code index --path /path/to/your/project
+# Download a model first
+bash scripts/download_model.sh --auto
 
-# Search for code patterns
-bnn-code search "function that handles authentication"
+# Ask a one-shot question
+bnn-code "How does the authentication flow work?"
 
-# Start interactive TUI
+# Start interactive REPL
 bnn-code
 
-# Get help
-bnn-code --help
+# Compute π to 500 decimal places
+bnn-code pi --digits 500
+
+# Run anomaly detection
+bnn-code rogue
+
+# Explain a specific file
+bnn-code explain src/main.rs
 ```
 
 ## Editor Integrations
@@ -124,11 +130,23 @@ python3 scripts/download_model.py --model codeberta-small
 
 | Command | Description |
 |---------|-------------|
-| `bnn-code index` | Index a codebase |
-| `bnn-code search` | Search indexed code |
-| `bnn-code query` | Query with AI inference |
-| `bnn-code` | Launch interactive TUI |
-| `bnn-code --help` | Show help |
+| `bnn-code [query]` | One-shot AI query or launch REPL (no query) |
+| `bnn-code explain <file>` | Explain a file or function |
+| `bnn-code refactor <file>` | Suggest refactoring improvements |
+| `bnn-code test <file>` | Generate unit tests |
+| `bnn-code init` | Initialize BNN Code in current project |
+| `bnn-code pi` | Compute π (Chudnovsky/Ramanujan, arbitrary precision) |
+| `bnn-code rogue` | Run anomaly detection (security, code smells, AI, user behavior) |
+| `bnn-code help` | Show help |
+
+### Options
+
+| Flag | Description |
+|------|-------------|
+| `-p, --path <PATH>` | Path to the codebase to index (default: `.`) |
+| `-m, --model <MODEL>` | BNN model to use (default: `default`) |
+| `-v, --verbose` | Enable verbose logging |
+| `--no-stream` | Disable streaming output |
 
 ## Architecture
 
