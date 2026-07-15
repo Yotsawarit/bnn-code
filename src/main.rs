@@ -36,7 +36,9 @@ async fn main() -> Result<()> {
         Some(Commands::Refactor { file }) => {
             println!("🧠 Refactoring file: {}", file);
             // TODO: Implement refactor logic
-            println!("Analysis complete. Suggested refactoring will be available in a future release.");
+            println!(
+                "Analysis complete. Suggested refactoring will be available in a future release."
+            );
         }
         Some(Commands::Test { file }) => {
             println!("🧠 Generating tests for: {}", file);
@@ -48,7 +50,7 @@ async fn main() -> Result<()> {
             utils::init_project()?;
         }
         Some(Commands::Rogue { category, json }) => {
-            use rogue::{RogueEngine, format_report};
+            use rogue::{format_report, RogueEngine};
             let mut engine = RogueEngine::new();
             let report = if let Some(cat) = category {
                 engine.run_category(&cat)?

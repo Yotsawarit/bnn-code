@@ -136,7 +136,10 @@ mod tests {
     #[test]
     fn test_indexing_config_defaults() {
         let config = BnnConfig::default();
-        assert!(config.indexing.exclude_dirs.contains(&"node_modules".to_string()));
+        assert!(config
+            .indexing
+            .exclude_dirs
+            .contains(&"node_modules".to_string()));
         assert!(config.indexing.exclude_dirs.contains(&"target".to_string()));
         assert!(config.indexing.exclude_dirs.contains(&".git".to_string()));
         assert_eq!(config.indexing.max_file_size_kb, 100);

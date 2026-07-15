@@ -20,39 +20,41 @@ pub struct SecurityDetector {
 
 impl SecurityDetector {
     pub fn new() -> Self {
-        Self { findings: Vec::new() }
+        Self {
+            findings: Vec::new(),
+        }
     }
 
     /// Check for suspicious processes by inspecting /proc entries
     fn check_suspicious_processes(&mut self) {
         let suspicious_keywords: HashSet<&str> = [
-            "minerd",        // Crypto miner
-            "xmrig",         // Crypto miner
-            "cryptonight",   // Crypto miner
-            "stratum",       // Mining pool
-            "nc -e",         // Reverse shell
-            "ncat -e",       // Reverse shell
-            "mkfifo",        // Named pipe shell
+            "minerd",                // Crypto miner
+            "xmrig",                 // Crypto miner
+            "cryptonight",           // Crypto miner
+            "stratum",               // Mining pool
+            "nc -e",                 // Reverse shell
+            "ncat -e",               // Reverse shell
+            "mkfifo",                // Named pipe shell
             "python -c 'import pty", // PTY spawn
-            "bash -i >&",    // Reverse shell
-            "perl -e 'use Socket", // Perl reverse shell
-            "socat",         // Socat reverse shell
-            "tcpdump",       // Packet capture (suspicious if unexpected)
-            "ettercap",      // MITM tool
-            "nmap",          // Port scanner
-            "masscan",       // Mass port scanner
-            "hydra",         // Brute force
-            "john",          // Password cracker
-            "hashcat",       // Password cracker
-            "keylogger",     // Keylogger
-            "log_keys",      // Keylogger
-            "wireshark",     // Packet capture (suspicious if unexpected)
-            "airdump-ng",    // WiFi sniffing
-            "aireplay-ng",   // WiFi injection
-            "metasploit",    // Exploitation framework
-            "msfconsole",    // Metasploit
-            "msfvenom",      // Payload generator
-            "beef",          // Browser exploitation
+            "bash -i >&",            // Reverse shell
+            "perl -e 'use Socket",   // Perl reverse shell
+            "socat",                 // Socat reverse shell
+            "tcpdump",               // Packet capture (suspicious if unexpected)
+            "ettercap",              // MITM tool
+            "nmap",                  // Port scanner
+            "masscan",               // Mass port scanner
+            "hydra",                 // Brute force
+            "john",                  // Password cracker
+            "hashcat",               // Password cracker
+            "keylogger",             // Keylogger
+            "log_keys",              // Keylogger
+            "wireshark",             // Packet capture (suspicious if unexpected)
+            "airdump-ng",            // WiFi sniffing
+            "aireplay-ng",           // WiFi injection
+            "metasploit",            // Exploitation framework
+            "msfconsole",            // Metasploit
+            "msfvenom",              // Payload generator
+            "beef",                  // Browser exploitation
         ]
         .into_iter()
         .collect();
@@ -240,15 +242,15 @@ impl SecurityDetector {
 
     /// Check for unauthorized SSH keys
     fn check_ssh_keys(&mut self) {
-        let ssh_paths = [
-            "/root/.ssh/authorized_keys",
-            "/home/",
-        ];
+        let ssh_paths = ["/root/.ssh/authorized_keys", "/home/"];
 
         for path in &ssh_paths {
             if path == &"/root/.ssh/authorized_keys" {
                 if let Ok(content) = std::fs::read_to_string(path) {
-                    let key_count = content.lines().filter(|l| !l.trim().is_empty() && !l.trim().starts_with('#')).count();
+                    let key_count = content
+                        .lines()
+                        .filter(|l| !l.trim().is_empty() && !l.trim().starts_with('#'))
+                        .count();
                     if key_count > 5 {
                         self.findings.push(Finding {
                             severity: Severity::Medium,

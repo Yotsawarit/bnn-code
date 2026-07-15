@@ -1,6 +1,6 @@
 pub mod indexer;
-pub mod retrieval;
 pub mod inference;
+pub mod retrieval;
 
 pub mod ui;
 

@@ -93,7 +93,9 @@ fn test_parser_multiple_languages() {
     assert!(py_symbols.iter().any(|s| s.name == "hello"));
 
     // JavaScript
-    let js_symbols = parser.extract_symbols("function greet() { return 'hi'; }").unwrap();
+    let js_symbols = parser
+        .extract_symbols("function greet() { return 'hi'; }")
+        .unwrap();
     assert!(js_symbols.iter().any(|s| s.name == "greet"));
 
     // Go
@@ -129,7 +131,7 @@ fn test_parse_then_chunk() {
 
 #[test]
 fn test_database_full_pipeline() {
-    use bnn_code::indexer::chunker::{CodeChunk, ChunkType};
+    use bnn_code::indexer::chunker::{ChunkType, CodeChunk};
     use bnn_code::indexer::database::CodeDatabase;
 
     let db = CodeDatabase::open_in_memory().unwrap();
@@ -170,25 +172,28 @@ fn test_database_full_pipeline() {
 
 #[test]
 fn test_reranker_orders_results() {
-    use bnn_code::indexer::chunker::{CodeChunk, ChunkType};
+    use bnn_code::indexer::chunker::{ChunkType, CodeChunk};
     use bnn_code::retrieval::reranker::rerank;
 
     let chunks = vec![
         CodeChunk {
             content: "def sort(arr): return sorted(arr)".to_string(),
-            start_line: 0, end_line: 0,
+            start_line: 0,
+            end_line: 0,
             symbol_name: Some("sort".to_string()),
             chunk_type: ChunkType::Function,
         },
         CodeChunk {
             content: "def search(arr, target): return -1".to_string(),
-            start_line: 0, end_line: 0,
+            start_line: 0,
+            end_line: 0,
             symbol_name: Some("search".to_string()),
             chunk_type: ChunkType::Function,
         },
         CodeChunk {
             content: "def filter(arr): return arr".to_string(),
-            start_line: 0, end_line: 0,
+            start_line: 0,
+            end_line: 0,
             symbol_name: Some("filter".to_string()),
             chunk_type: ChunkType::Function,
         },
@@ -219,7 +224,10 @@ fn test_config_default_roundtrip() {
     let deserialized: BnnConfig = serde_json::from_str(&json).unwrap();
 
     assert_eq!(config.model.max_tokens, deserialized.model.max_tokens);
-    assert_eq!(config.indexing.max_file_size_kb, deserialized.indexing.max_file_size_kb);
+    assert_eq!(
+        config.indexing.max_file_size_kb,
+        deserialized.indexing.max_file_size_kb
+    );
     assert_eq!(config.ui.theme, deserialized.ui.theme);
 }
 

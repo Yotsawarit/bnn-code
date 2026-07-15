@@ -13,9 +13,9 @@
 //! # Ok::<_, anyhow::Error>(())
 //! ```
 
-mod security;
-mod code_smell;
 mod ai_output;
+mod code_smell;
+mod security;
 mod user_behavior;
 
 use anyhow::Result;
@@ -116,11 +116,13 @@ impl RogueEngine {
         let mut all_findings = Vec::new();
         for detector in &mut self.detectors {
             let cat = detector.name();
-            let matches = matches!((cat, normalized.as_str()),
-                ("security", "security") | (_, "all") |
-                ("code_smell", "code_smell" | "code" | "smell") |
-                ("ai_rogue", "ai_rogue" | "ai" | "rogue") |
-                ("user_behavior", "user_behavior" | "user" | "behavior")
+            let matches = matches!(
+                (cat, normalized.as_str()),
+                ("security", "security")
+                    | (_, "all")
+                    | ("code_smell", "code_smell" | "code" | "smell")
+                    | ("ai_rogue", "ai_rogue" | "ai" | "rogue")
+                    | ("user_behavior", "user_behavior" | "user" | "behavior")
             );
             if !matches {
                 continue;
@@ -166,12 +168,7 @@ pub fn format_report(report: &RogueReport, verbose: bool) -> String {
     writeln!(out, "{}", "═".repeat(60)).ok();
     writeln!(out, "  🔍 ROGUE DETECTION REPORT").ok();
     writeln!(out, "{}", "═".repeat(60)).ok();
-    writeln!(
-        out,
-        "  Total findings: {}",
-        report.total_findings
-    )
-    .ok();
+    writeln!(out, "  Total findings: {}", report.total_findings).ok();
     writeln!(out).ok();
 
     // Summary by severity
@@ -243,12 +240,7 @@ pub fn format_report(report: &RogueReport, verbose: bool) -> String {
             if let Some(ref loc) = f.location {
                 writeln!(out, "     Location: {}", loc).ok();
             }
-            writeln!(
-                out,
-                "     Confidence: {:.0}%",
-                f.confidence * 100.0
-            )
-            .ok();
+            writeln!(out, "     Confidence: {:.0}%", f.confidence * 100.0).ok();
             writeln!(out, "     💡 {}", f.recommendation).ok();
         }
     }
@@ -299,7 +291,15 @@ mod tests {
             recommendation: "Fix it".into(),
         };
         let json = serde_json::to_string(&f).unwrap();
-        assert!(json.contains(r#""High""#), "JSON should contain 'High' severity, got: {}", json);
-        assert!(json.contains("security"), "JSON should contain 'security', got: {}", json);
+        assert!(
+            json.contains(r#""High""#),
+            "JSON should contain 'High' severity, got: {}",
+            json
+        );
+        assert!(
+            json.contains("security"),
+            "JSON should contain 'security', got: {}",
+            json
+        );
     }
 }

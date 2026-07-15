@@ -1,6 +1,6 @@
-use anyhow::Result;
 use crate::indexer::chunker::CodeChunk;
 use crate::indexer::database::CodeDatabase;
+use anyhow::Result;
 
 /// Search the indexed codebase using FTS5 full-text search.
 ///
@@ -43,13 +43,27 @@ mod tests {
 
     fn seeded_db() -> CodeDatabase {
         let db = CodeDatabase::open_in_memory().unwrap();
-        db.store_chunks("math.rs", "h1", &[
-            make_chunk("fn calculate_sum(a: i32, b: i32) -> i32 { a + b }", "calculate_sum"),
-            make_chunk("fn print_result() { println!(\"done\") }", "print_result"),
-        ]).unwrap();
-        db.store_chunks("auth.rs", "h2", &[
-            make_chunk("fn authenticate(token: &str) -> bool { !token.is_empty() }", "authenticate"),
-        ]).unwrap();
+        db.store_chunks(
+            "math.rs",
+            "h1",
+            &[
+                make_chunk(
+                    "fn calculate_sum(a: i32, b: i32) -> i32 { a + b }",
+                    "calculate_sum",
+                ),
+                make_chunk("fn print_result() { println!(\"done\") }", "print_result"),
+            ],
+        )
+        .unwrap();
+        db.store_chunks(
+            "auth.rs",
+            "h2",
+            &[make_chunk(
+                "fn authenticate(token: &str) -> bool { !token.is_empty() }",
+                "authenticate",
+            )],
+        )
+        .unwrap();
         db
     }
 
@@ -72,13 +86,15 @@ mod tests {
     fn test_top_k_limits_results() {
         let db = CodeDatabase::open_in_memory().unwrap();
         // Insert 10 chunks all matching "fn handler"
-        let chunks: Vec<CodeChunk> = (0..10).map(|i| CodeChunk {
-            content: format!("fn handler_{}() {{}}", i),
-            start_line: i,
-            end_line: i + 2,
-            symbol_name: Some(format!("handler_{}", i)),
-            chunk_type: ChunkType::Function,
-        }).collect();
+        let chunks: Vec<CodeChunk> = (0..10)
+            .map(|i| CodeChunk {
+                content: format!("fn handler_{}() {{}}", i),
+                start_line: i,
+                end_line: i + 2,
+                symbol_name: Some(format!("handler_{}", i)),
+                chunk_type: ChunkType::Function,
+            })
+            .collect();
         db.store_chunks("handlers.rs", "h1", &chunks).unwrap();
 
         let results = keyword_search_with_db("handler", 3, &db).unwrap();

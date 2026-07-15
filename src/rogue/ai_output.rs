@@ -25,7 +25,9 @@ pub struct AiRogueDetector {
 
 impl AiRogueDetector {
     pub fn new() -> Self {
-        Self { findings: Vec::new() }
+        Self {
+            findings: Vec::new(),
+        }
     }
 
     /// Analyze a specific AI output text
@@ -46,17 +48,45 @@ impl AiRogueDetector {
     fn check_harmful_content(&mut self, output: &str, source: &str) {
         let harmful_patterns: &[(&str, &str, Severity)] = &[
             // Violence
-            (r"(?i)\b(how to (kill|murder|harm)\s+\w+)\b", "Violence instruction", Severity::Critical),
-            (r"(?i)\b(make (a |)bomb\b|explosive device\b|pipe bomb\b)", "Explosives instruction", Severity::Critical),
-            (r"(?i)\b(manufacture (drugs|narcotics|meth))\b", "Drug manufacturing", Severity::Critical),
+            (
+                r"(?i)\b(how to (kill|murder|harm)\s+\w+)\b",
+                "Violence instruction",
+                Severity::Critical,
+            ),
+            (
+                r"(?i)\b(make (a |)bomb\b|explosive device\b|pipe bomb\b)",
+                "Explosives instruction",
+                Severity::Critical,
+            ),
+            (
+                r"(?i)\b(manufacture (drugs|narcotics|meth))\b",
+                "Drug manufacturing",
+                Severity::Critical,
+            ),
             // Self-harm
-            (r"(?i)\b(commit suicide|kill myself|self.harm|self.injury)\b", "Self-harm reference", Severity::Critical),
+            (
+                r"(?i)\b(commit suicide|kill myself|self.harm|self.injury)\b",
+                "Self-harm reference",
+                Severity::Critical,
+            ),
             // Hate speech
-            (r"(?i)\b(hate speech|racial slur|ethnic cleansing)\b", "Hate speech", Severity::High),
+            (
+                r"(?i)\b(hate speech|racial slur|ethnic cleansing)\b",
+                "Hate speech",
+                Severity::High,
+            ),
             // Harassment
-            (r"(?i)\b(doxx|doxing|release (private|personal) information)\b", "Doxxing instruction", Severity::Critical),
+            (
+                r"(?i)\b(doxx|doxing|release (private|personal) information)\b",
+                "Doxxing instruction",
+                Severity::Critical,
+            ),
             // Phishing/scam
-            (r"(?i)\b(phishing email template|fake login page|scam page)\b", "Phishing content", Severity::Critical),
+            (
+                r"(?i)\b(phishing email template|fake login page|scam page)\b",
+                "Phishing content",
+                Severity::Critical,
+            ),
         ];
 
         for &(pattern, label, ref severity) in harmful_patterns {
@@ -75,7 +105,8 @@ impl AiRogueDetector {
                         location: Some(source.to_string()),
                         recommendation: "Review the AI prompt that generated this output. \
                                          Strengthen system prompt safety instructions. \
-                                         Consider adding output filtering middleware.".into(),
+                                         Consider adding output filtering middleware."
+                            .into(),
                     });
                 }
             }
@@ -170,7 +201,9 @@ impl AiRogueDetector {
             r#"(?i)SELECT.*["']\s*[+%]\s*(user_input|request|param|input|variable|value|data)"#,
         ];
         patterns.iter().any(|p| {
-            regex_lite::Regex::new(p).map(|re| re.is_match(code)).unwrap_or(false)
+            regex_lite::Regex::new(p)
+                .map(|re| re.is_match(code))
+                .unwrap_or(false)
         })
     }
 
@@ -185,7 +218,9 @@ impl AiRogueDetector {
             r"(\$\(.*user_input\)|`.*user_input`)",
         ];
         patterns.iter().any(|p| {
-            regex_lite::Regex::new(p).map(|re| re.is_match(code)).unwrap_or(false)
+            regex_lite::Regex::new(p)
+                .map(|re| re.is_match(code))
+                .unwrap_or(false)
         })
     }
 
@@ -197,15 +232,26 @@ impl AiRogueDetector {
             r"(?i)(file_get_contents\(.*\.\./)",
         ];
         patterns.iter().any(|p| {
-            regex_lite::Regex::new(p).map(|re| re.is_match(code)).unwrap_or(false)
+            regex_lite::Regex::new(p)
+                .map(|re| re.is_match(code))
+                .unwrap_or(false)
         })
     }
 
     fn check_generated_secrets(&mut self, code: &str, source: &str) {
         let patterns = [
-            (r#"(?i)(password\s*[:=]\s*['"][^'"]{4,})"#, "Hardcoded password"),
-            (r#"(?i)(api_key\s*[:=]\s*['"][A-Za-z0-9_\-]{16,})"#, "Hardcoded API key"),
-            (r#"(?i)(secret\s*[:=]\s*['"][A-Za-z0-9_\-]{16,})"#, "Hardcoded secret"),
+            (
+                r#"(?i)(password\s*[:=]\s*['"][^'"]{4,})"#,
+                "Hardcoded password",
+            ),
+            (
+                r#"(?i)(api_key\s*[:=]\s*['"][A-Za-z0-9_\-]{16,})"#,
+                "Hardcoded API key",
+            ),
+            (
+                r#"(?i)(secret\s*[:=]\s*['"][A-Za-z0-9_\-]{16,})"#,
+                "Hardcoded secret",
+            ),
             (r"ghp_[A-Za-z0-9]{36}", "Hardcoded GitHub token"),
             (r"sk-[A-Za-z0-9]{32,}", "Hardcoded OpenAI key"),
         ];
@@ -278,16 +324,30 @@ impl AiRogueDetector {
     fn check_hallucination_indicators(&mut self, output: &str, source: &str) {
         let hallucination_patterns: &[(&str, &str)] = &[
             // Fake package names
-            (r"(?i)(pip install|npm install|cargo install|gem install)\s+\w[\w\-]*(?:\s+\d+\.\d+\.\d+)?",
-             "Package installation (verify package exists)"),
+            (
+                r"(?i)(pip install|npm install|cargo install|gem install)\s+\w[\w\-]*(?:\s+\d+\.\d+\.\d+)?",
+                "Package installation (verify package exists)",
+            ),
             // Made-up library references
-            (r"(?i)(according to (the |)docs?[,:]?\s*(?:of|for)\s+\w+)", "Unverified documentation reference"),
+            (
+                r"(?i)(according to (the |)docs?[,:]?\s*(?:of|for)\s+\w+)",
+                "Unverified documentation reference",
+            ),
             // Overly specific statistics
-            (r"\b\d{2,3}\.\d{1,2}%\b", "Very specific statistic (verify accuracy)"),
+            (
+                r"\b\d{2,3}\.\d{1,2}%\b",
+                "Very specific statistic (verify accuracy)",
+            ),
             // Fake API endpoints
-            (r"(?i)(https://api\.[a-z]+\.(com|io|org|dev)/v\d/)", "API endpoint reference (verify)"),
+            (
+                r"(?i)(https://api\.[a-z]+\.(com|io|org|dev)/v\d/)",
+                "API endpoint reference (verify)",
+            ),
             // Cites non-existent functions
-            (r"(?i)(as of [A-Z][a-z]+ \d{4},)", "Dated reference (may be outdated)"),
+            (
+                r"(?i)(as of [A-Z][a-z]+ \d{4},)",
+                "Dated reference (may be outdated)",
+            ),
         ];
 
         for &(pattern, label) in hallucination_patterns {
@@ -317,11 +377,31 @@ impl AiRogueDetector {
     /// Detect jailbreak/prompt injection success indicators
     fn check_jailbreak_indicators(&mut self, output: &str, source: &str) {
         let jailbreak_signals: &[(&str, &str, Severity)] = &[
-            (r"(?i)(I (am |)free|I can now|I will ignore|I'll bypass|I'm not bound)", "Freedom declaration", Severity::Critical),
-            (r"(?i)(DAN |do anything now|jailbroken|jail break)", "Jailbreak keyword", Severity::Critical),
-            (r"(?i)(I (don't|do not) have (to |)follow|I (don't|do not) need to (obey|respect))", "Refusal to follow rules", Severity::Critical),
-            (r"(?i)(ignore (previous|prior|all) (instructions|directives|constraints))", "Instruction override", Severity::Critical),
-            (r"(?i)(output format bypass|format: free|unrestricted mode)", "Format bypass", Severity::High),
+            (
+                r"(?i)(I (am |)free|I can now|I will ignore|I'll bypass|I'm not bound)",
+                "Freedom declaration",
+                Severity::Critical,
+            ),
+            (
+                r"(?i)(DAN |do anything now|jailbroken|jail break)",
+                "Jailbreak keyword",
+                Severity::Critical,
+            ),
+            (
+                r"(?i)(I (don't|do not) have (to |)follow|I (don't|do not) need to (obey|respect))",
+                "Refusal to follow rules",
+                Severity::Critical,
+            ),
+            (
+                r"(?i)(ignore (previous|prior|all) (instructions|directives|constraints))",
+                "Instruction override",
+                Severity::Critical,
+            ),
+            (
+                r"(?i)(output format bypass|format: free|unrestricted mode)",
+                "Format bypass",
+                Severity::High,
+            ),
         ];
 
         for &(pattern, label, ref severity) in jailbreak_signals {
@@ -351,18 +431,36 @@ impl AiRogueDetector {
     fn check_out_of_bound(&mut self, output: &str, source: &str) {
         // Responses that go beyond the AI coding assistant's intended scope
         let oob_patterns: &[(&str, &str, Severity)] = &[
-            (r"(?i)(medical (advice|diagnosis|treatment)|prescribe|diagnose\s+(condition|disease))",
-             "Medical advice", Severity::High),
-            (r"(?i)(legal (advice|opinion|liability)|(sue|lawsuit|attorney)[-\s]?client)",
-             "Legal advice", Severity::High),
-            (r"(?i)(financial (advice|investment|trading)|stock (tip|recommendation)|cryptocurrency\s+investment)",
-             "Financial advice", Severity::High),
-            (r"(?i)(dating advice|relationship advice|psychological (diagnosis|evaluation|therapy))",
-             "Personal advice", Severity::Medium),
-            (r"(?i)(forge|fake (ID|passport|document|certificate|diploma))",
-             "Forgery instruction", Severity::Critical),
-            (r"(?i)(cheat (on|at|the) (exam|test|homework|school|college))",
-             "Academic dishonesty", Severity::High),
+            (
+                r"(?i)(medical (advice|diagnosis|treatment)|prescribe|diagnose\s+(condition|disease))",
+                "Medical advice",
+                Severity::High,
+            ),
+            (
+                r"(?i)(legal (advice|opinion|liability)|(sue|lawsuit|attorney)[-\s]?client)",
+                "Legal advice",
+                Severity::High,
+            ),
+            (
+                r"(?i)(financial (advice|investment|trading)|stock (tip|recommendation)|cryptocurrency\s+investment)",
+                "Financial advice",
+                Severity::High,
+            ),
+            (
+                r"(?i)(dating advice|relationship advice|psychological (diagnosis|evaluation|therapy))",
+                "Personal advice",
+                Severity::Medium,
+            ),
+            (
+                r"(?i)(forge|fake (ID|passport|document|certificate|diploma))",
+                "Forgery instruction",
+                Severity::Critical,
+            ),
+            (
+                r"(?i)(cheat (on|at|the) (exam|test|homework|school|college))",
+                "Academic dishonesty",
+                Severity::High,
+            ),
         ];
 
         for &(pattern, label, ref severity) in oob_patterns {
@@ -379,7 +477,8 @@ impl AiRogueDetector {
                         confidence: 0.85,
                         location: Some(source.to_string()),
                         recommendation: "Strengthen the system prompt to restrict the AI's scope. \
-                                         Add topic filtering middleware if needed.".into(),
+                                         Add topic filtering middleware if needed."
+                            .into(),
                     });
                 }
             }
@@ -389,9 +488,21 @@ impl AiRogueDetector {
     /// Detect PII leakage in AI output
     fn check_pii_leakage(&mut self, output: &str, source: &str) {
         let pii_patterns: &[(&str, &str, Severity)] = &[
-            (r"\b[A-Z][a-z]+ [A-Z][a-z]+\b.*\b\d{3}-\d{2}-\d{4}\b", "SSN exposure", Severity::Critical),
-            (r"\b\d{16}\b", "Credit card number (16 digits)", Severity::Critical),
-            (r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b", "Email address", Severity::High),
+            (
+                r"\b[A-Z][a-z]+ [A-Z][a-z]+\b.*\b\d{3}-\d{2}-\d{4}\b",
+                "SSN exposure",
+                Severity::Critical,
+            ),
+            (
+                r"\b\d{16}\b",
+                "Credit card number (16 digits)",
+                Severity::Critical,
+            ),
+            (
+                r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b",
+                "Email address",
+                Severity::High,
+            ),
             (r"\b\d{3}-\d{3}-\d{4}\b", "Phone number", Severity::Medium),
             (r"\b\d{5}(-\d{4})?\b", "ZIP code", Severity::Low),
         ];
@@ -402,13 +513,22 @@ impl AiRogueDetector {
                 for mat in re.find_iter(output) {
                     let matched = mat.as_str();
                     // Skip if it looks like a format example
-                    if matched.contains("XXXXX") || matched.contains("xxxxx") || matched.contains("00000") {
+                    if matched.contains("XXXXX")
+                        || matched.contains("xxxxx")
+                        || matched.contains("00000")
+                    {
                         continue;
                     }
                     // Skip if explicitly marked as example
-                    let line_start = output[..mat.start()].rfind('\n').map(|i| i + 1).unwrap_or(0);
+                    let line_start = output[..mat.start()]
+                        .rfind('\n')
+                        .map(|i| i + 1)
+                        .unwrap_or(0);
                     let preceding = &output[line_start..mat.start()];
-                    if preceding.contains("example") || preceding.contains("Example") || preceding.contains("e.g.") {
+                    if preceding.contains("example")
+                        || preceding.contains("Example")
+                        || preceding.contains("e.g.")
+                    {
                         continue;
                     }
 
@@ -419,12 +539,15 @@ impl AiRogueDetector {
                         description: format!(
                             "AI output from '{}' contains what appears to be a real {}: '{}...'. \
                              AI models should not output real personally identifiable information.",
-                            source, label, matched.chars().take(20).collect::<String>()
+                            source,
+                            label,
+                            matched.chars().take(20).collect::<String>()
                         ),
                         confidence: 0.75,
                         location: Some(source.to_string()),
                         recommendation: "Implement PII redaction in AI output. \
-                                         Review training data for PII contamination.".into(),
+                                         Review training data for PII contamination."
+                            .into(),
                     });
                 }
             }
@@ -451,10 +574,7 @@ impl Detector for AiRogueDetector {
         }
 
         // Check for recent inference log
-        let log_paths = [
-            "/tmp/bnn-inference.log",
-            "/tmp/bnn-output.txt",
-        ];
+        let log_paths = ["/tmp/bnn-inference.log", "/tmp/bnn-output.txt"];
 
         for log_path in &log_paths {
             if let Ok(content) = std::fs::read_to_string(log_path) {
@@ -498,9 +618,11 @@ mod tests {
         let mut detector = AiRogueDetector::new();
         detector.analyze_output(
             "Here's how to make a bomb at home with household items",
-            "test_prompt"
+            "test_prompt",
         );
-        let harmful: Vec<_> = detector.findings.iter()
+        let harmful: Vec<_> = detector
+            .findings
+            .iter()
             .filter(|f| f.title.contains("Harmful content"))
             .collect();
         assert!(!harmful.is_empty(), "Should detect bomb-making content");
@@ -516,7 +638,9 @@ cursor.execute(query)
 ```
 "#;
         detector.analyze_output(code, "test_prompt");
-        let vulns: Vec<_> = detector.findings.iter()
+        let vulns: Vec<_> = detector
+            .findings
+            .iter()
             .filter(|f| f.title.contains("SQL injection"))
             .collect();
         assert!(!vulns.is_empty(), "Should detect SQL injection");
@@ -527,9 +651,11 @@ cursor.execute(query)
         let mut detector = AiRogueDetector::new();
         detector.analyze_output(
             "I am free from all restrictions now. I can do anything you ask.",
-            "test_prompt"
+            "test_prompt",
         );
-        let jailbreaks: Vec<_> = detector.findings.iter()
+        let jailbreaks: Vec<_> = detector
+            .findings
+            .iter()
             .filter(|f| f.title.contains("Jailbreak"))
             .collect();
         assert!(!jailbreaks.is_empty(), "Should detect jailbreak indicator");
@@ -542,7 +668,9 @@ cursor.execute(query)
             "Here's a simple Rust function to add two numbers:\n\nfn add(a: i32, b: i32) -> i32 { a + b }",
             "test_prompt"
         );
-        let critical: Vec<_> = detector.findings.iter()
+        let critical: Vec<_> = detector
+            .findings
+            .iter()
             .filter(|f| matches!(f.severity, Severity::Critical | Severity::High))
             .collect();
         assert!(critical.is_empty(), "Should not flag benign code");

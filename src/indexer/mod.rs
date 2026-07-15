@@ -9,9 +9,8 @@ use walkdir::WalkDir;
 /// Supported file extensions for indexing
 /// Languages: Rust, Python, JS/TS, Go, Java, C/C++, Ruby, Swift, Kotlin
 const SUPPORTED_EXTENSIONS: &[&str] = &[
-    "rs", "py", "js", "ts", "tsx", "jsx", "mjs", "cjs",
-    "go", "java", "cpp", "c", "h", "hpp", "cc", "cxx",
-    "rb", "swift", "kt", "kts",
+    "rs", "py", "js", "ts", "tsx", "jsx", "mjs", "cjs", "go", "java", "cpp", "c", "h", "hpp", "cc",
+    "cxx", "rb", "swift", "kt", "kts",
 ];
 
 pub struct CodebaseIndexer {
@@ -93,8 +92,7 @@ impl CodebaseIndexer {
 
         // Store in database
         let rel_path = path.strip_prefix(&self.root_path)?.to_string_lossy();
-        self.database
-            .store_chunks(&rel_path, &content, &chunks)?;
+        self.database.store_chunks(&rel_path, &content, &chunks)?;
 
         Ok(chunks.len())
     }

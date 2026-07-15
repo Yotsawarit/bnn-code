@@ -11,9 +11,13 @@ const ONNX_MAGIC_BYTE: u8 = 0x08;
 
 pub fn cpu_supports_sse42() -> bool {
     #[cfg(any(target_arch = "x86_64", target_arch = "x86"))]
-    { is_x86_feature_detected!("sse4.2") }
+    {
+        is_x86_feature_detected!("sse4.2")
+    }
     #[cfg(not(any(target_arch = "x86_64", target_arch = "x86")))]
-    { return true; }
+    {
+        return true;
+    }
 }
 
 pub fn validate_model_file(path: &Path) -> Result<()> {
@@ -33,12 +37,13 @@ pub fn validate_model_file(path: &Path) -> Result<()> {
         bail!(
             "Model file too small ({} bytes): {}\n\
              Looks like a partial download. Delete and re-run: bash scripts/download_model.sh",
-            size, path.display()
+            size,
+            path.display()
         );
     }
 
-    let mut file = fs::File::open(path)
-        .with_context(|| format!("Cannot open: {}", path.display()))?;
+    let mut file =
+        fs::File::open(path).with_context(|| format!("Cannot open: {}", path.display()))?;
     let mut first_byte = [0u8; 1];
     file.read_exact(&mut first_byte)
         .with_context(|| format!("Cannot read: {}", path.display()))?;
@@ -47,7 +52,8 @@ pub fn validate_model_file(path: &Path) -> Result<()> {
         bail!(
             "Not a valid ONNX model (bad magic byte 0x{:02X}): {}\n\
              Re-download: bash scripts/download_model.sh",
-            first_byte[0], path.display()
+            first_byte[0],
+            path.display()
         );
     }
 
@@ -84,13 +90,13 @@ impl OnnxEngine {
             .with_intra_threads(4)
             .map_err(|e| anyhow::anyhow!("Failed to set intra-op threads: {e}"))?;
 
-        let session = builder
-            .commit_from_file(model_path)
-            .map_err(|e| anyhow::anyhow!(
+        let session = builder.commit_from_file(model_path).map_err(|e| {
+            anyhow::anyhow!(
                 "ONNX Runtime could not load model {}: {e}\n\
                  The model may use an unsupported opset version.",
                 model_path.display()
-            ))?;
+            )
+        })?;
 
         tracing::info!("ONNX model loaded successfully");
         Ok(Self { session })
@@ -101,10 +107,10 @@ impl OnnxEngine {
         input_ids: Array2<i64>,
         attention_mask: Array2<i64>,
     ) -> Result<Array2<f32>> {
-        let input_tensor = Tensor::from_array(input_ids)
-            .context("Failed to create input_ids tensor")?;
-        let mask_tensor = Tensor::from_array(attention_mask)
-            .context("Failed to create attention_mask tensor")?;
+        let input_tensor =
+            Tensor::from_array(input_ids).context("Failed to create input_ids tensor")?;
+        let mask_tensor =
+            Tensor::from_array(attention_mask).context("Failed to create attention_mask tensor")?;
 
         let outputs = self
             .session

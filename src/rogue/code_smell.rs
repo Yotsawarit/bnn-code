@@ -25,8 +25,8 @@ impl CodeSmellDetector {
         Self {
             findings: Vec::new(),
             source_extensions: &[
-                "rs", "py", "js", "ts", "jsx", "tsx", "go", "java",
-                "cpp", "c", "h", "hpp", "rb", "swift", "kt", "kts",
+                "rs", "py", "js", "ts", "jsx", "tsx", "go", "java", "cpp", "c", "h", "hpp", "rb",
+                "swift", "kt", "kts",
             ],
         }
     }
@@ -121,16 +121,48 @@ impl CodeSmellDetector {
     /// Detect hardcoded secrets (API keys, passwords, tokens)
     fn check_hardcoded_secrets(&mut self, file_path: &str, lines: &[&str]) {
         let secret_patterns: &[(&str, &str, Severity)] = &[
-            (r#"(?i)(api[_-]?key|apikey)\s*[:=]\s*['"][A-Za-z0-9_\-]{16,}"#, "API Key", Severity::Critical),
-            (r#"(?i)(secret|token|auth)\s*[:=]\s*['"][A-Za-z0-9_\-\.]{16,}"#, "Secret/Token", Severity::Critical),
-            (r#"(?i)password\s*[:=]\s*['"][^'"\s]{4,}"#, "Password", Severity::Critical),
-            (r"(?i)(aws_access_key|aws_secret_key|AKIA[0-9A-Z]{16})", "AWS Credential", Severity::Critical),
+            (
+                r#"(?i)(api[_-]?key|apikey)\s*[:=]\s*['"][A-Za-z0-9_\-]{16,}"#,
+                "API Key",
+                Severity::Critical,
+            ),
+            (
+                r#"(?i)(secret|token|auth)\s*[:=]\s*['"][A-Za-z0-9_\-\.]{16,}"#,
+                "Secret/Token",
+                Severity::Critical,
+            ),
+            (
+                r#"(?i)password\s*[:=]\s*['"][^'"\s]{4,}"#,
+                "Password",
+                Severity::Critical,
+            ),
+            (
+                r"(?i)(aws_access_key|aws_secret_key|AKIA[0-9A-Z]{16})",
+                "AWS Credential",
+                Severity::Critical,
+            ),
             (r"ghp_[A-Za-z0-9]{36}", "GitHub Token", Severity::Critical),
             (r"sk-[A-Za-z0-9]{32,}", "OpenAI API Key", Severity::Critical),
-            (r"(?i)-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----", "Private Key", Severity::Critical),
-            (r"(?i)jdbc:mysql://[^:]+:[^@]+@", "Database URL with password", Severity::High),
-            (r"mongodb://[^:]+:[^@]+@", "MongoDB URL with credentials", Severity::High),
-            (r"redis://:[^@]+@", "Redis URL with password", Severity::High),
+            (
+                r"(?i)-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----",
+                "Private Key",
+                Severity::Critical,
+            ),
+            (
+                r"(?i)jdbc:mysql://[^:]+:[^@]+@",
+                "Database URL with password",
+                Severity::High,
+            ),
+            (
+                r"mongodb://[^:]+:[^@]+@",
+                "MongoDB URL with credentials",
+                Severity::High,
+            ),
+            (
+                r"redis://:[^@]+@",
+                "Redis URL with password",
+                Severity::High,
+            ),
         ];
 
         for (i, line) in lines.iter().enumerate() {
@@ -192,7 +224,11 @@ impl CodeSmellDetector {
 
         if max_depth > 6 {
             self.findings.push(Finding {
-                severity: if max_depth > 10 { Severity::High } else { Severity::Medium },
+                severity: if max_depth > 10 {
+                    Severity::High
+                } else {
+                    Severity::Medium
+                },
                 category: "code_smell".into(),
                 title: "Excessive nesting depth".into(),
                 description: format!(
@@ -203,7 +239,8 @@ impl CodeSmellDetector {
                 confidence: 0.85,
                 location: Some(format!("{}:{}", file_path, depth_line)),
                 recommendation: "Refactor deeply nested code: extract methods, use early returns, \
-                                 or apply the guard clause pattern.".into(),
+                                 or apply the guard clause pattern."
+                    .into(),
             });
         }
     }
@@ -214,8 +251,7 @@ impl CodeSmellDetector {
 
         // Patterns to exclude (common non-magic numbers)
         let exclude_patterns: &[&str] = &[
-            "0", "1", "-1", "100", "0.0", "1.0",
-            "0x", "0o", "0b",  // hex/octal/binary prefixes
+            "0", "1", "-1", "100", "0.0", "1.0", "0x", "0o", "0b", // hex/octal/binary prefixes
         ];
 
         let magic_re = regex_lite::Regex::new(r"(?m)\b(\d{3,}|\.\d{2,})\b").unwrap();
@@ -238,7 +274,10 @@ impl CodeSmellDetector {
             for cap in magic_re.find_iter(trimmed) {
                 let num = cap.as_str();
                 // Skip if it matches excluded patterns
-                if exclude_patterns.iter().any(|&p| num == p || num.starts_with(p)) {
+                if exclude_patterns
+                    .iter()
+                    .any(|&p| num == p || num.starts_with(p))
+                {
                     continue;
                 }
                 // Skip if it's a version number like "3.14", "2.0"
@@ -255,11 +294,14 @@ impl CodeSmellDetector {
                         title: "Magic number detected".into(),
                         description: format!(
                             "Numeric literal `{}` on line {} of {} should be a named constant.",
-                            num, i + 1, file_path
+                            num,
+                            i + 1,
+                            file_path
                         ),
                         confidence: 0.70,
                         location: Some(format!("{}:{}", file_path, i + 1)),
-                        recommendation: "Extract to a named constant: `const MAX_RETRIES: u32 = 3;`".into(),
+                        recommendation:
+                            "Extract to a named constant: `const MAX_RETRIES: u32 = 3;`".into(),
                     });
                 }
             }
@@ -287,7 +329,9 @@ impl CodeSmellDetector {
                         ),
                         confidence: 0.90,
                         location: Some(format!("{}:{}", file_path, i + 1)),
-                        recommendation: "Break the line into multiple lines or extract logic to a function.".into(),
+                        recommendation:
+                            "Break the line into multiple lines or extract logic to a function."
+                                .into(),
                     });
                 }
             }
@@ -304,7 +348,9 @@ impl CodeSmellDetector {
                 ),
                 confidence: 0.85,
                 location: Some(file_path.to_string()),
-                recommendation: "Configure formatter (rustfmt, prettier, black) to enforce line length limits.".into(),
+                recommendation:
+                    "Configure formatter (rustfmt, prettier, black) to enforce line length limits."
+                        .into(),
             });
         }
     }
@@ -319,7 +365,11 @@ impl CodeSmellDetector {
             (r"(?i)\bWORKAROUND\b", "WORKAROUND", Severity::Low),
             (r"(?i)\bBUG\b", "BUG", Severity::High),
             (r"(?i)\bOPTIMIZE\b", "OPTIMIZE", Severity::Info),
-            (r"(?i)\bTODO:?\s*SECURITY\b", "Security TODO", Severity::High),
+            (
+                r"(?i)\bTODO:?\s*SECURITY\b",
+                "Security TODO",
+                Severity::High,
+            ),
         ];
 
         for (i, line) in lines.iter().enumerate() {
@@ -520,7 +570,10 @@ impl CodeSmellDetector {
 
             // Single-line comments that look like code
             if trimmed.starts_with("//") || trimmed.starts_with('#') {
-                let content = trimmed.trim_start_matches("//").trim_start_matches('#').trim();
+                let content = trimmed
+                    .trim_start_matches("//")
+                    .trim_start_matches('#')
+                    .trim();
                 if content.contains(';')
                     || (content.contains('=') && content.len() > 5)
                     || content.starts_with("fn ")
@@ -546,7 +599,8 @@ impl CodeSmellDetector {
                             ),
                             confidence: 0.65,
                             location: Some(format!("{}:{}", file_path, i + 1)),
-                            recommendation: "Remove dead code. Use version control to track history.".into(),
+                            recommendation:
+                                "Remove dead code. Use version control to track history.".into(),
                         });
                     }
                 }
@@ -577,10 +631,12 @@ impl Detector for CodeSmellDetector {
                 severity: Severity::Info,
                 category: "code_smell".into(),
                 title: "No code smells detected".into(),
-                description: "Scanned source files and found no significant code quality issues.".into(),
+                description: "Scanned source files and found no significant code quality issues."
+                    .into(),
                 confidence: 1.0,
                 location: None,
-                recommendation: "Maintain good practices by running `bnn rogue code` regularly.".into(),
+                recommendation: "Maintain good practices by running `bnn rogue code` regularly."
+                    .into(),
             });
         }
 
@@ -607,10 +663,16 @@ let password = "supersecret123";
 let normal = 42;
 "#;
         detector.analyze_file("test.rs", content);
-        let secrets: Vec<_> = detector.findings.iter()
+        let secrets: Vec<_> = detector
+            .findings
+            .iter()
             .filter(|f| f.title.contains("Hardcoded") || f.title.contains("Secret"))
             .collect();
-        assert!(secrets.len() >= 2, "Should detect API key and password, got {}", secrets.len());
+        assert!(
+            secrets.len() >= 2,
+            "Should detect API key and password, got {}",
+            secrets.len()
+        );
     }
 
     #[test]
@@ -636,7 +698,9 @@ fn main() {
 }
 "#;
         detector.analyze_file("test.rs", content);
-        let nesting: Vec<_> = detector.findings.iter()
+        let nesting: Vec<_> = detector
+            .findings
+            .iter()
             .filter(|f| f.title.contains("nesting"))
             .collect();
         assert!(!nesting.is_empty(), "Should detect deep nesting");
@@ -652,8 +716,12 @@ fn main() {
 let x = 1;
 "#;
         detector.analyze_file("test.rs", content);
-        let todos: Vec<_> = detector.findings.iter()
-            .filter(|f| f.title.contains("TODO") || f.title.contains("FIXME") || f.title.contains("HACK"))
+        let todos: Vec<_> = detector
+            .findings
+            .iter()
+            .filter(|f| {
+                f.title.contains("TODO") || f.title.contains("FIXME") || f.title.contains("HACK")
+            })
             .collect();
         assert_eq!(todos.len(), 3);
     }
@@ -667,7 +735,9 @@ unsafe {
 }
 "#;
         detector.analyze_file("test.rs", content);
-        let unsafe_findings: Vec<_> = detector.findings.iter()
+        let unsafe_findings: Vec<_> = detector
+            .findings
+            .iter()
             .filter(|f| f.title.contains("Unsafe"))
             .collect();
         assert!(!unsafe_findings.is_empty());

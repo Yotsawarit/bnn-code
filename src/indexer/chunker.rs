@@ -31,11 +31,7 @@ impl SemanticChunker {
         Self { max_lines }
     }
 
-    pub fn chunk(
-        &self,
-        source: &str,
-        symbols: &[CodeSymbol],
-    ) -> Result<Vec<CodeChunk>> {
+    pub fn chunk(&self, source: &str, symbols: &[CodeSymbol]) -> Result<Vec<CodeChunk>> {
         let mut chunks = Vec::new();
         let lines: Vec<&str> = source.lines().collect();
 
@@ -134,9 +130,7 @@ mod tests {
     fn test_chunk_class_symbol() {
         let chunker = SemanticChunker::new(50);
         let source = "class MyClass {\n    fn method() {}\n}";
-        let symbols = vec![
-            make_symbol("MyClass", SymbolKind::Class, 0, 2),
-        ];
+        let symbols = vec![make_symbol("MyClass", SymbolKind::Class, 0, 2)];
 
         let chunks = chunker.chunk(source, &symbols).unwrap();
         assert_eq!(chunks[0].chunk_type, ChunkType::Class);
@@ -155,9 +149,7 @@ mod tests {
         let chunker = SemanticChunker::new(50);
         let source = "fn one_line() {}";
         // Symbol spanning beyond source lines
-        let symbols = vec![
-            make_symbol("oob", SymbolKind::Function, 0, 100),
-        ];
+        let symbols = vec![make_symbol("oob", SymbolKind::Function, 0, 100)];
 
         let chunks = chunker.chunk(source, &symbols).unwrap();
         assert_eq!(chunks.len(), 1);

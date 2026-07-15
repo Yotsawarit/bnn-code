@@ -24,9 +24,7 @@ pub fn file_cache_key(path: &std::path::Path) -> Result<String> {
     let modified = metadata.modified()?;
     // Produce a stable hex hash for the cache key
     let path_str = path.to_string_lossy();
-    let duration = modified
-        .duration_since(UNIX_EPOCH)
-        .unwrap_or_default();
+    let duration = modified.duration_since(UNIX_EPOCH).unwrap_or_default();
     let mut hasher = std::collections::hash_map::DefaultHasher::new();
     path_str.hash(&mut hasher);
     duration.as_nanos().hash(&mut hasher);

@@ -50,22 +50,31 @@ impl AstParser {
         let match_pattern = |trimmed: &str, pattern: &str| -> Option<String> {
             if *pattern == *"type " && trimmed.starts_with("type ") && trimmed.contains(" struct") {
                 // Go: "type X struct"
-                trimmed.strip_prefix("type ")?
+                trimmed
+                    .strip_prefix("type ")?
                     .split([' ', '{'])
                     .next()
                     .map(|s| s.to_string())
                     .filter(|s| !s.is_empty())
-            } else if *pattern == *"type.interface" && trimmed.starts_with("type ") && trimmed.contains(" interface") {
+            } else if *pattern == *"type.interface"
+                && trimmed.starts_with("type ")
+                && trimmed.contains(" interface")
+            {
                 // Go: "type X interface"
-                trimmed.strip_prefix("type ")?
+                trimmed
+                    .strip_prefix("type ")?
                     .split([' ', '{'])
                     .next()
                     .map(|s| s.to_string())
                     .filter(|s| !s.is_empty())
-            } else if *pattern == *"const.*=>" && trimmed.starts_with("const ") && trimmed.contains("=>") {
+            } else if *pattern == *"const.*=>"
+                && trimmed.starts_with("const ")
+                && trimmed.contains("=>")
+            {
                 // JS/TS arrow functions: "const X = (...) =>"
                 let after_const = trimmed.strip_prefix("const ")?;
-                after_const.split([' ', '=', '('])
+                after_const
+                    .split([' ', '=', '('])
                     .next()
                     .map(|s| s.to_string())
                     .filter(|s| !s.is_empty())
@@ -78,12 +87,17 @@ impl AstParser {
                     .filter(|s| !s.is_empty())
             } else if trimmed.starts_with(pattern) {
                 // Default: simple prefix matching
-                let name = trimmed.strip_prefix(pattern)?
+                let name = trimmed
+                    .strip_prefix(pattern)?
                     .split(['(', '{', ' ', '<', ':'])
                     .next()
                     .unwrap_or("")
                     .to_string();
-                if name.is_empty() { None } else { Some(name) }
+                if name.is_empty() {
+                    None
+                } else {
+                    Some(name)
+                }
             } else {
                 None
             }
@@ -103,13 +117,13 @@ impl AstParser {
             (SymbolKind::Class, "class "),
             // JavaScript / TypeScript
             (SymbolKind::Function, "function "),
-            (SymbolKind::Function, "const.*=>"),   // arrow functions
+            (SymbolKind::Function, "const.*=>"), // arrow functions
             (SymbolKind::Class, "class "),
             (SymbolKind::Interface, "interface "),
             (SymbolKind::Enum, "enum "),
             // Go
             (SymbolKind::Function, "func "),
-            (SymbolKind::Struct, "type "),           // will check for " struct"
+            (SymbolKind::Struct, "type "), // will check for " struct"
             (SymbolKind::Interface, "type.interface"), // will check for " interface"
             // Java / C++ / C#
             (SymbolKind::Class, "public class "),
@@ -119,9 +133,9 @@ impl AstParser {
             (SymbolKind::Enum, "public enum "),
             (SymbolKind::Function, "public static "),
             (SymbolKind::Function, "private static "),
-            (SymbolKind::Function, "public "),         // Java methods
-            (SymbolKind::Function, "private "),        // Java methods
-            (SymbolKind::Function, "protected "),      // Java methods
+            (SymbolKind::Function, "public "),    // Java methods
+            (SymbolKind::Function, "private "),   // Java methods
+            (SymbolKind::Function, "protected "), // Java methods
             (SymbolKind::Struct, "typedef struct"),
             // Ruby
             (SymbolKind::Function, "def "),
@@ -145,7 +159,6 @@ impl AstParser {
             let trimmed = line.trim();
             for (kind, pattern) in &patterns {
                 if let Some(name) = match_pattern(trimmed, pattern) {
-
                     if !name.is_empty() {
                         // Find end of block by counting braces
                         let mut brace_count = 0;
@@ -173,7 +186,10 @@ impl AstParser {
                         // Look for doc comment above
                         let doc_comment = if i > 0 {
                             let prev = lines[i - 1].trim();
-                            if prev.starts_with("///") || prev.starts_with("# ") || prev.starts_with("// ") {
+                            if prev.starts_with("///")
+                                || prev.starts_with("# ")
+                                || prev.starts_with("// ")
+                            {
                                 Some(prev.trim_start_matches(['/', '#', ' ']).to_string())
                             } else {
                                 None
@@ -332,7 +348,9 @@ public class HelloWorld {
     #[test]
     fn test_no_symbols() {
         let parser = CodeParser::new().unwrap();
-        let symbols = parser.extract_symbols("just some text\nwithout any\nfunctions").unwrap();
+        let symbols = parser
+            .extract_symbols("just some text\nwithout any\nfunctions")
+            .unwrap();
         assert!(symbols.is_empty());
     }
 
@@ -352,7 +370,10 @@ fn world() {
 "#;
         let symbols = parser.extract_symbols(source).unwrap();
         let hello = symbols.iter().find(|s| s.name == "hello").unwrap();
-        assert_eq!(hello.doc_comment.as_deref(), Some("This is a greeting function"));
+        assert_eq!(
+            hello.doc_comment.as_deref(),
+            Some("This is a greeting function")
+        );
     }
 
     #[test]

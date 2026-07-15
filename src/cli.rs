@@ -84,11 +84,14 @@ mod tests {
     fn test_cli_with_options() {
         let cli = Cli::try_parse_from([
             "bnn",
-            "--path", "/my/project",
-            "--model", "codebert",
+            "--path",
+            "/my/project",
+            "--model",
+            "codebert",
             "--verbose",
             "--no-stream",
-        ]).unwrap();
+        ])
+        .unwrap();
         assert_eq!(cli.path, "/my/project");
         assert_eq!(cli.model, "codebert");
         assert!(cli.verbose);

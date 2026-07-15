@@ -3,10 +3,7 @@ pub mod streaming;
 pub mod terminal;
 
 use anyhow::Result;
-use ratatui::{
-    backend::CrosstermBackend,
-    Terminal,
-};
+use ratatui::{backend::CrosstermBackend, Terminal};
 use std::io;
 
 /// Initialize the terminal UI

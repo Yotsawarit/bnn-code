@@ -92,14 +92,19 @@ mod tests {
 
         // First result should be the most relevant (calculate_sum has "sum" in name and content)
         let first = &result[0];
-        assert!(first.content.contains("sum") || first.symbol_name.as_deref() == Some("calculate_sum"));
+        assert!(
+            first.content.contains("sum") || first.symbol_name.as_deref() == Some("calculate_sum")
+        );
     }
 
     #[test]
     fn test_rerank_exact_name_bonus() {
         let chunks = vec![
             make_chunk("fn process() { data }", Some("process")),
-            make_chunk("fn process_data() { data processing }", Some("process_data")),
+            make_chunk(
+                "fn process_data() { data processing }",
+                Some("process_data"),
+            ),
         ];
 
         let result = rerank("process", &chunks).unwrap();
@@ -109,9 +114,10 @@ mod tests {
 
     #[test]
     fn test_rerank_case_insensitive() {
-        let chunks = vec![
-            make_chunk("fn HELLO_WORLD() { greeting }", Some("HELLO_WORLD")),
-        ];
+        let chunks = vec![make_chunk(
+            "fn HELLO_WORLD() { greeting }",
+            Some("HELLO_WORLD"),
+        )];
 
         let result = rerank("hello", &chunks).unwrap();
         assert_eq!(result.len(), 1);
@@ -119,9 +125,7 @@ mod tests {
 
     #[test]
     fn test_rerank_no_match() {
-        let chunks = vec![
-            make_chunk("fn aaa() { zzz }", Some("aaa")),
-        ];
+        let chunks = vec![make_chunk("fn aaa() { zzz }", Some("aaa"))];
 
         let result = rerank("nonexistent_word_xyz", &chunks).unwrap();
         assert_eq!(result.len(), 1); // Still returns, just low score

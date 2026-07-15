@@ -43,12 +43,9 @@ impl BnnInference {
 
         // Tokenize
         let encoding = self.tokenizer.encode(&full_prompt, self.max_tokens)?;
-        let input_ids =
-            Array2::from_shape_vec((1, encoding.len()), encoding.ids.clone())?;
-        let attention_mask = Array2::from_shape_vec(
-            (1, encoding.len()),
-            encoding.attention_mask.clone(),
-        )?;
+        let input_ids = Array2::from_shape_vec((1, encoding.len()), encoding.ids.clone())?;
+        let attention_mask =
+            Array2::from_shape_vec((1, encoding.len()), encoding.attention_mask.clone())?;
 
         // Run inference
         let output = self.engine.run(input_ids, attention_mask)?;

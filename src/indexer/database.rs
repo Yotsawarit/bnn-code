@@ -19,7 +19,7 @@ pub fn default_db_path() -> PathBuf {
     if let Ok(path) = std::env::var("BNN_DB_PATH") {
         return PathBuf::from(path);
     }
-    
+
     // Use project-local .bnn directory by default
     std::env::current_dir()
         .unwrap_or_else(|_| PathBuf::from("."))
@@ -43,9 +43,8 @@ impl CodeDatabase {
             })?;
         }
 
-        let conn = Connection::open(db_path).with_context(|| {
-            format!("Failed to open SQLite database: {}", db_path.display())
-        })?;
+        let conn = Connection::open(db_path)
+            .with_context(|| format!("Failed to open SQLite database: {}", db_path.display()))?;
 
         // WAL mode: readers don't block writers, much better for a CLI tool
         conn.execute_batch("PRAGMA journal_mode=WAL; PRAGMA synchronous=NORMAL;")
@@ -59,8 +58,8 @@ impl CodeDatabase {
     /// Open an **in-memory** database (used in tests only).
     #[allow(dead_code)]
     pub fn open_in_memory() -> Result<Self> {
-        let conn = Connection::open_in_memory()
-            .context("Failed to open in-memory SQLite database")?;
+        let conn =
+            Connection::open_in_memory().context("Failed to open in-memory SQLite database")?;
         Self::init_schema(&conn)?;
         Ok(Self { conn })
     }
@@ -108,13 +107,17 @@ impl CodeDatabase {
         file_hash: &str,
         chunks: &[CodeChunk],
     ) -> Result<()> {
-        let tx = self.conn.unchecked_transaction()
+        let tx = self
+            .conn
+            .unchecked_transaction()
             .context("Failed to begin transaction")?;
 
         // Remove stale chunks for this file before re-inserting
-        tx.execute("DELETE FROM chunks WHERE file_path = ?1",
-            rusqlite::params![file_path])
-            .context("Failed to delete stale chunks")?;
+        tx.execute(
+            "DELETE FROM chunks WHERE file_path = ?1",
+            rusqlite::params![file_path],
+        )
+        .context("Failed to delete stale chunks")?;
 
         for chunk in chunks {
             tx.execute(
@@ -130,7 +133,8 @@ impl CodeDatabase {
                     format!("{:?}", chunk.chunk_type),
                     file_hash,
                 ],
-            ).context("Failed to insert chunk")?;
+            )
+            .context("Failed to insert chunk")?;
         }
 
         tx.commit().context("Failed to commit transaction")?;
@@ -142,23 +146,26 @@ impl CodeDatabase {
     pub fn search_by_keyword(&self, keyword: &str, limit: usize) -> Result<Vec<CodeChunk>> {
         let limit = limit.min(SEARCH_LIMIT) as i64;
 
-        let mut stmt = self.conn.prepare(
-            "SELECT c.content, c.start_line, c.end_line, c.symbol_name, c.chunk_type
+        let mut stmt = self
+            .conn
+            .prepare(
+                "SELECT c.content, c.start_line, c.end_line, c.symbol_name, c.chunk_type
              FROM chunks_fts
              JOIN chunks c ON c.id = chunks_fts.rowid
              WHERE chunks_fts MATCH ?1
              ORDER BY rank
              LIMIT ?2",
-        ).context("Failed to prepare FTS search statement")?;
+            )
+            .context("Failed to prepare FTS search statement")?;
 
         let results = stmt
             .query_map(rusqlite::params![keyword, limit], |row| {
                 Ok(CodeChunk {
-                    content:     row.get(0)?,
-                    start_line:  row.get::<_, i64>(1)? as usize,
-                    end_line:    row.get::<_, i64>(2)? as usize,
+                    content: row.get(0)?,
+                    start_line: row.get::<_, i64>(1)? as usize,
+                    end_line: row.get::<_, i64>(2)? as usize,
                     symbol_name: row.get(3)?,
-                    chunk_type:  super::chunker::ChunkType::Module,
+                    chunk_type: super::chunker::ChunkType::Module,
                 })
             })
             .context("FTS query failed")?
@@ -170,20 +177,23 @@ impl CodeDatabase {
 
     #[allow(dead_code)]
     pub fn get_file_chunks(&self, file_path: &str) -> Result<Vec<CodeChunk>> {
-        let mut stmt = self.conn.prepare(
-            "SELECT content, start_line, end_line, symbol_name, chunk_type
+        let mut stmt = self
+            .conn
+            .prepare(
+                "SELECT content, start_line, end_line, symbol_name, chunk_type
              FROM chunks WHERE file_path = ?1
              ORDER BY start_line",
-        ).context("Failed to prepare get_file_chunks statement")?;
+            )
+            .context("Failed to prepare get_file_chunks statement")?;
 
         let results = stmt
             .query_map(rusqlite::params![file_path], |row| {
                 Ok(CodeChunk {
-                    content:     row.get(0)?,
-                    start_line:  row.get::<_, i64>(1)? as usize,
-                    end_line:    row.get::<_, i64>(2)? as usize,
+                    content: row.get(0)?,
+                    start_line: row.get::<_, i64>(1)? as usize,
+                    end_line: row.get::<_, i64>(2)? as usize,
                     symbol_name: row.get(3)?,
-                    chunk_type:  super::chunker::ChunkType::Module,
+                    chunk_type: super::chunker::ChunkType::Module,
                 })
             })
             .context("Failed to query file chunks")?
@@ -195,7 +205,8 @@ impl CodeDatabase {
 
     #[allow(dead_code)]
     pub fn chunk_count(&self) -> Result<usize> {
-        let count: i64 = self.conn
+        let count: i64 = self
+            .conn
             .query_row("SELECT COUNT(*) FROM chunks", [], |row| row.get(0))
             .context("Failed to count chunks")?;
         Ok(count as usize)
@@ -264,8 +275,18 @@ mod tests {
     fn test_fts_search() {
         let db = CodeDatabase::open_in_memory().unwrap();
         let chunks = vec![
-            make_chunk("fn calculate_sum(a: i32, b: i32) -> i32 { a + b }", "calculate_sum", 0, 2),
-            make_chunk("fn print_result() { println!(\"done\") }", "print_result", 4, 6),
+            make_chunk(
+                "fn calculate_sum(a: i32, b: i32) -> i32 { a + b }",
+                "calculate_sum",
+                0,
+                2,
+            ),
+            make_chunk(
+                "fn print_result() { println!(\"done\") }",
+                "print_result",
+                4,
+                6,
+            ),
         ];
         db.store_chunks("math.rs", "h1", &chunks).unwrap();
 
@@ -273,7 +294,10 @@ mod tests {
         assert_eq!(results.len(), 1);
         assert_eq!(results[0].symbol_name.as_deref(), Some("calculate_sum"));
 
-        assert!(db.search_by_keyword("zzz_not_found", 10).unwrap().is_empty());
+        assert!(db
+            .search_by_keyword("zzz_not_found", 10)
+            .unwrap()
+            .is_empty());
     }
 
     #[test]
@@ -286,8 +310,10 @@ mod tests {
     #[test]
     fn test_multiple_files() {
         let db = CodeDatabase::open_in_memory().unwrap();
-        db.store_chunks("file1.rs", "h1", &[make_chunk("fn a() {}", "a", 0, 1)]).unwrap();
-        db.store_chunks("file2.rs", "h2", &[make_chunk("fn b() {}", "b", 0, 1)]).unwrap();
+        db.store_chunks("file1.rs", "h1", &[make_chunk("fn a() {}", "a", 0, 1)])
+            .unwrap();
+        db.store_chunks("file2.rs", "h2", &[make_chunk("fn b() {}", "b", 0, 1)])
+            .unwrap();
         assert_eq!(db.chunk_count().unwrap(), 2);
         assert_eq!(db.get_file_chunks("file1.rs").unwrap().len(), 1);
         assert_eq!(db.get_file_chunks("file2.rs").unwrap().len(), 1);

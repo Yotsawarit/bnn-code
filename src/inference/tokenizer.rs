@@ -24,8 +24,9 @@ impl Encoding {
 
 impl Tokenizer {
     pub fn new(tokenizer_path: &Path) -> Result<Self> {
-        let tokenizer = HfTokenizer::from_file(tokenizer_path)
-            .map_err(|e| anyhow::anyhow!("Tokenizer load error from {:?}: {:?}", tokenizer_path, e))?;
+        let tokenizer = HfTokenizer::from_file(tokenizer_path).map_err(|e| {
+            anyhow::anyhow!("Tokenizer load error from {:?}: {:?}", tokenizer_path, e)
+        })?;
         Ok(Self { tokenizer })
     }
 
@@ -48,7 +49,10 @@ impl Tokenizer {
             .take(max_length)
             .collect();
 
-        Ok(Encoding { ids, attention_mask })
+        Ok(Encoding {
+            ids,
+            attention_mask,
+        })
     }
 
     pub fn decode(&self, ids: &[i64]) -> Result<String> {
