@@ -6,7 +6,39 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI/CD](https://github.com/Yotsawarit/bnn-code/actions/workflows/release.yml/badge.svg)](https://github.com/Yotsawarit/bnn-code/actions)
 
-BNN Code is a terminal-based AI coding assistant that helps you understand, refactor, and test your codebase using Binarized Neural Networks (BNNs). It runs entirely in your terminal with zero IDE lock-in.
+BNN Code is a terminal-based AI coding assistant that helps you understand, refactor, and test your codebase using Binarized Neural Networks (BNNs). It runs entirely in your terminal with zero IDE dependencies.
+
+## ⚡ Quick Install
+
+```bash
+cargo install bnn-code
+```
+
+**Other installation methods**: [See below](#installation)
+
+---
+
+## 💖 Support This Project
+
+BNN Code is free and open-source. If you find it useful, please consider supporting its development!
+
+### Donation Options
+
+| Option | Link |
+|--------|------|
+| **GitHub Sponsors** | [Sponsor on GitHub](https://github.com/sponsors/Yotsawarit) |
+| **Stripe (Test)** | [Donate via Stripe](https://buy.stripe.com/test_7sY9ATc8t1GK0pj5j7enS00) |
+
+> **Goal**: $300/month from the Rust community  
+> **Help us reach**: 100 developers × $3 = Target achieved! 🎯
+
+Your support helps us:
+- 🚀 Maintain and improve BNN Code
+- 📚 Add new language support
+- 🔧 Implement community-requested features
+- 💬 Provide faster issue resolution
+
+---
 
 ## Features
 
