@@ -1,0 +1,35 @@
+name: RustSec Audit
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * 1'  # ทุกวันจันทร์ ตี 2
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - name: Install cargo-audit
+        run: cargo install cargo-audit
+      - name: Run cargo audit - fail on any vuln
+        run: cargo audit --deny warnings
+      - name: Check unmaintained crates (dirs -> dirs-next)
+        run: |
+          echo "Checking for RUSTSEC-2020-0053 dirs unmaintained"
+          cargo tree | grep -i "dirs v5" && echo "FAIL: Still using unmaintained dirs" && exit 1 || echo "PASS: No unmaintained dirs"
+      - name: Generate audit report artifact
+        if: always()
+        run: |
+          cargo audit --json > audit.json || true
+          cat audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: audit-report
+          path: audit.json

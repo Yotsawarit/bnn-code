@@ -73,6 +73,7 @@ tempfile = "3.27.0"
 # Big integer math (π calculation)
 num-bigint = "0.4"
 num-traits = "0.2"
+dirs-next = "2.0.0"
 
 # 2FA/MFA Support
 totp = "0.4"
