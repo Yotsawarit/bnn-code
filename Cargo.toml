@@ -101,3 +101,6 @@ codegen-units = 1
 
 [dev-dependencies]
 tempfile = "3.27.0"
+
+[patch.crates-io]
+paste = { git = "https://github.com/your-org/paste" }
