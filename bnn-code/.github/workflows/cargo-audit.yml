@@ -1,0 +1,77 @@
+name: cargo-audit
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - security/add-cargo-audit-workflow
+  pull_request:
+    branches:
+      - security/add-cargo-audit-workflow
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cargo-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    name: Run cargo-audit and produce evidence
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+
+      - name: Set up Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Install cargo-audit and cargo-tree (if needed)
+        run: |
+          set -euo pipefail
+          if ! command -v cargo-audit >/dev/null 2>&1; then
+            cargo install cargo-audit --locked || true
+          fi
+          if ! command -v cargo-tree >/dev/null 2>&1; then
+            cargo install cargo-tree --locked || true
+          fi
+
+      - name: Run cargo audit (JSON)
+        run: |
+          set -o pipefail
+          cargo audit --json > cargo-audit.json || true
+
+      - name: Run cargo tree
+        run: |
+          cargo tree > cargo-tree.txt || true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: cargo-audit-evidence
+          path: |
+            cargo-audit.json
+            cargo-tree.txt
+
+      - name: Commit evidence back to branch
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cargo-audit.json cargo-tree.txt || true
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Add cargo-audit evidence [skip ci]"
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          git push origin HEAD:refs/heads/${BRANCH}
