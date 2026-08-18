@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+message: "If you use BNN Code in your work, please cite the project and the benchmark it references."
+title: "BNN Code"
+authors:
+  - name: "Yotsawarit Pudpong"
+    email: yotsawarit.pudpong@gmail.com
+identifiers:
+  - type: url
+    value: "https://github.com/Yotsawarit/bnn-code"
+  - type: url
+    value: "https://crates.io/crates/bnn-code"
+repository-code: "https://github.com/Yotsawarit/bnn-code"
+license: "MIT"
+version: 0.1.3
+date-released: 2026-06-28
+
+references:
+  - type: webpage
+    title: "The Agentic Leaderboard"
+    authors:
+      - name: "The Agentic Leaderboard"
+    year: 2026
+    url: "https://www.theagenticleaderboard.com"
+    notes: "Weekly ranking of top 100 open-source AI agents. Accessed June 22, 2026."
+
+  - type: misc
+    title: "ONNX Runtime"
+    url: "https://github.com/microsoft/onnxruntime"
+    notes: "Cross-platform ML inference engine used by BNN Code."
+
+  - type: misc
+    title: "tree-sitter"
+    url: "https://github.com/tree-sitter/tree-sitter"
+    notes: "AST parser used for codebase indexing."

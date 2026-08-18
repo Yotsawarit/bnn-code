@@ -1,0 +1,180 @@
+{
+  "name": "bnn-code",
+  "displayName": "BNN Code",
+  "description": "Terminal-native AI coding agent powered by Binarized Neural Networks",
+  "version": "0.3.0",
+  "publisher": "bnn-code",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Machine Learning",
+    "Other"
+  ],
+  "keywords": [
+    "ai",
+    "bnn",
+    "coding",
+    "assistant",
+    "terminal"
+  ],
+  "activationEvents": [
+    "onCommand:bnn.explain",
+    "onCommand:bnn.refactor",
+    "onCommand:bnn.test",
+    "onCommand:bnn.fix",
+    "onCommand:bnn.commit",
+    "onCommand:bnn.review",
+    "onCommand:bnn.document",
+    "onCommand:bnn.query"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "bnn.explain",
+        "title": "BNN: Explain Selection",
+        "icon": "$(eye)"
+      },
+      {
+        "command": "bnn.refactor",
+        "title": "BNN: Refactor Selection",
+        "icon": "$(edit)"
+      },
+      {
+        "command": "bnn.test",
+        "title": "BNN: Generate Tests",
+        "icon": "$(beaker)"
+      },
+      {
+        "command": "bnn.fix",
+        "title": "BNN: Fix Errors",
+        "icon": "$(bug)"
+      },
+      {
+        "command": "bnn.commit",
+        "title": "BNN: Generate Commit Message",
+        "icon": "$(git-commit)"
+      },
+      {
+        "command": "bnn.review",
+        "title": "BNN: Review Changes",
+        "icon": "$(checklist)"
+      },
+      {
+        "command": "bnn.document",
+        "title": "BNN: Generate Documentation",
+        "icon": "$(book)"
+      },
+      {
+        "command": "bnn.query",
+        "title": "BNN: Ask Question",
+        "icon": "$(question)"
+      },
+      {
+        "command": "bnn.terminal",
+        "title": "BNN: Open Terminal",
+        "icon": "$(terminal)"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "bnn.explain",
+          "when": "editorHasSelection",
+          "group": "bnn@1"
+        },
+        {
+          "command": "bnn.refactor",
+          "when": "editorHasSelection",
+          "group": "bnn@2"
+        },
+        {
+          "command": "bnn.test",
+          "when": "editorHasSelection",
+          "group": "bnn@3"
+        },
+        {
+          "command": "bnn.document",
+          "when": "editorHasSelection",
+          "group": "bnn@4"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "bnn.fix",
+          "group": "navigation"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "bnn.explain",
+        "key": "ctrl+shift+e",
+        "mac": "cmd+shift+e",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "bnn.refactor",
+        "key": "ctrl+shift+r",
+        "mac": "cmd+shift+r",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "bnn.test",
+        "key": "ctrl+shift+t",
+        "mac": "cmd+shift+t",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "bnn.query",
+        "key": "ctrl+shift+b",
+        "mac": "cmd+shift+b"
+      },
+      {
+        "command": "bnn.terminal",
+        "key": "ctrl+shift+`",
+        "mac": "cmd+shift+`",
+        "when": "!terminalFocus"
+      }
+    ],
+    "configuration": {
+      "title": "BNN Code",
+      "properties": {
+        "bnn.binaryPath": {
+          "type": "string",
+          "default": "bnn",
+          "description": "Path to BNN Code binary"
+        },
+        "bnn.codebasePath": {
+          "type": "string",
+          "default": ".",
+          "description": "Path to codebase to index"
+        },
+        "bnn.showOutput": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show output panel when BNN responds"
+        },
+        "bnn.streaming": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable streaming output"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^2.22.0"
+  }
+}

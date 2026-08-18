@@ -63,6 +63,31 @@ mkdir -p "$PKG_DIR/usr/share/doc/$PKG_NAME"
 mkdir -p "$PKG_DIR/usr/share/bash-completion/completions"
 mkdir -p "$PKG_DIR/usr/share/man/man1"
 
+# ── Bash completion ───────────────────────────────────────────────
+cat > "$PKG_DIR/usr/share/bash-completion/completions/bnn-code" << 'BASH'
+_bnn_code() {
+    local i cur prev opts cmd
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    
+    opts="-h --help -V --version explain refactor test init"
+    
+    if [[ ${cur} == -* ]] || [[ ${COMP_CWORD} -eq 1 ]]; then
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+        return 0
+    fi
+    
+    case "${prev}" in
+        explain|refactor|test)
+            COMPREPLY=( $(compgen -f -- ${cur}) )
+            return 0
+            ;;
+    esac
+}
+complete -F _bnn_code bnn-code bnn
+BASH
+
 # ── Control file ──────────────────────────────────────────────────
 cat > "$PKG_DIR/DEBIAN/control" << EOF
 Package: $PKG_NAME
@@ -84,11 +109,6 @@ Description: Terminal-native AI coding agent powered by Binarized Neural Network
   • Interactive TUI with ratatui
   • Fast binary inference with ONNX Runtime
 Homepage: https://github.com/bnn-code/bnn-code
-EOF
-
-# ── Conffiles ─────────────────────────────────────────────────────
-cat > "$PKG_DIR/DEBIAN/conffiles" << 'EOF'
-/etc/bash_completion.d/bnn-code
 EOF
 
 # ── Post-installation script ─────────────────────────────────────
