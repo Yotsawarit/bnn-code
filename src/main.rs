@@ -1,6 +1,7 @@
 use anyhow::Result;
 use clap::Parser;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use crate::utils::license;
 
 mod cli;
 mod indexer;
@@ -12,11 +13,41 @@ mod rogue;
 mod ui;
 mod utils;
 
-use cli::{Cli, Commands};
+use cli::{Cli, Commands, LicenseCmd};
 
-#[tokio::main]
-async fn main() -> Result<()> {
-    // Initialize logging
+fn handle_license_commands(cli: &Cli) -> Result<bool> {
+    if cli.license {
+        if license::is_pro() {
+            let lic = license::load().unwrap();
+            println!("✅ Pro Active - {} (validated {})", lic.email, lic.validated_at);
+        } else {
+            println!("Free version - ใช้ bnn-code license activate KEY เพื่ออัพเกรด");
+        }
+        return Ok(true);
+    }
+
+    if let Some(Commands::License { cmd }) = &cli.command {
+        match cmd {
+            LicenseCmd::Activate { key } => {
+                let lic = license::validate_online(key)?;
+                license::save(&lic)?;
+                println!("✅ Activated Pro for {}", lic.email);
+            }
+            LicenseCmd::Status | LicenseCmd::Check => {
+                println!("Pro: {}", license::is_pro());
+                if let Some(l) = license::load() {
+                    println!("Key: {}...{}", &l.key[..4], &l.key[l.key.len()-4..]);
+                    println!("Last check: {}", l.validated_at);
+                }
+            }
+        }
+        return Ok(true);
+    }
+
+    Ok(false)
+}
+
+async fn async_main(cli: Cli) -> Result<()> {
     tracing_subscriber::registry()
         .with(tracing_subscriber::EnvFilter::new(
             std::env::var("BNN_LOG_LEVEL").unwrap_or_else(|_| "info".into()),
@@ -24,9 +55,22 @@ async fn main() -> Result<()> {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let cli = Cli::parse();
-
     match cli.command {
+        Some(Commands::Search { query, cross_repo }) => {
+            if cross_repo {
+                require_pro!("--cross-repo");
+            }
+            println!("Searching for: {} (cross_repo: {})", query, cross_repo);
+        }
+        Some(Commands::Index { path }) => {
+            println!("🧠 Indexing: {}", path);
+            let mut indexer = indexer::CodebaseIndexer::new(&path)?;
+            let num_chunks = indexer.index().await?;
+            println!("✓ Indexed {} chunks", num_chunks);
+        }
+        Some(Commands::Query { query }) => {
+            run_query(&query, ".", &cli.model).await?;
+        }
         Some(Commands::Explain { file }) => {
             println!("🧠 Explaining: {}", file);
             let content = std::fs::read_to_string(&file)?;
@@ -200,14 +244,14 @@ async fn main() -> Result<()> {
             println!("{}", response);
         }
         None => {
-            // Interactive or one-shot mode
             if let Some(query) = cli.query {
-                // One-shot mode
                 run_query(&query, &cli.path, &cli.model).await?;
             } else {
-                // REPL mode
                 repl::run_repl(cli.path).await?;
             }
+        }
+        Some(Commands::License { .. }) => {
+            // Already handled
         }
     }
 
@@ -220,18 +264,28 @@ async fn run_query(query: &str, path: &str, model: &str) -> Result<()> {
     println!("Path: {}", path);
     println!("Model: {}", model);
 
-    // Step 1: Index codebase
     let mut indexer = indexer::CodebaseIndexer::new(path)?;
     let num_chunks = indexer.index().await?;
     println!("✓ Indexed {} chunks", num_chunks);
 
-    // Step 2: Retrieve context
     let context = retrieval::search(query, 3).await?;
     println!("✓ Retrieved {} relevant chunks", context.len());
 
-    // Step 3: Generate response
     let response = inference::generate_with_model(query, &context, model).await?;
     println!("\n✨ Response:\n{}", response);
 
     Ok(())
+}
+
+fn main() -> Result<()> {
+    let cli = Cli::parse();
+
+    if handle_license_commands(&cli)? {
+        return Ok(());
+    }
+
+    tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()?
+        .block_on(async_main(cli))
 }

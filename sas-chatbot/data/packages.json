@@ -1,0 +1,96 @@
+{
+  "meta": {
+    "provider": "SAS Thailand",
+    "currency": "THB",
+    "unit": "บาท/เดือน",
+    "updated": "2026-08-17"
+  },
+  "packages": [
+    {
+      "id": "pkg-basic",
+      "name": "SAS Basic 4G",
+      "type": "mobile",
+      "price": 199,
+      "usage_gb": 10,
+      "benefits": ["เน็ต 10GB", "โทรฟรีในเครือข่าย 100 นาที", "ฟรี SAS Music (โฆษณา)"],
+      "ideal_profile": {
+        "min_usage_gb": 0,
+        "max_usage_gb": 15,
+        "max_budget": 300,
+        "tags": ["ประหยัด", "ใช้งานเบา", "นักศึกษา"]
+      }
+    },
+    {
+      "id": "pkg-value",
+      "name": "SAS Value 4G+",
+      "type": "mobile",
+      "price": 349,
+      "usage_gb": 30,
+      "benefits": ["เน็ต 30GB", "โทรฟรีทุกเครือข่าย 150 นาที", "ฟรี SAS Music Premium", "ส่วนลดแท็กซี่ Grab 10%"],
+      "ideal_profile": {
+        "min_usage_gb": 15,
+        "max_usage_gb": 40,
+        "max_budget": 500,
+        "tags": ["เน็ตปานกลาง", "ใช้งานประจำ", "วัยทำงาน"]
+      }
+    },
+    {
+      "id": "pkg-family",
+      "name": "SAS Family 4G",
+      "type": "mobile",
+      "price": 599,
+      "usage_gb": 60,
+      "shared": "ใช้ร่วมกันได้ 4 เลขหมาย",
+      "benefits": ["เน็ต 60GB แชร์ 4 ซิม", "โทรฟรีทุกเครือข่าย 500 นาที", "SAS Music Premium 4 บัญชี", "คูปองส่วนลดค่าไฟ 100 บาท/เดือน"],
+      "ideal_profile": {
+        "min_usage_gb": 40,
+        "max_usage_gb": 80,
+        "max_budget": 900,
+        "family_members": 4,
+        "tags": ["ครอบครัว", "ใช้ร่วมกัน", "หลายเลขหมาย"]
+      }
+    },
+    {
+      "id": "pkg-pro",
+      "name": "SAS Pro Unlimited",
+      "type": "mobile",
+      "price": 899,
+      "usage_gb": 9999,
+      "benefits": ["เน็ตไม่จำกัดความเร็วสูงสุด 15GB แล้วลดความเร็ว", "โทรฟรีทุกเครือข่ายไม่จำกัด", "SAS Music + SAS Video Premium", "สิทธิ์เข้า Lounge สนามบิน 4 ครั้ง/ปี"],
+      "ideal_profile": {
+        "min_usage_gb": 80,
+        "max_usage_gb": 99999,
+        "max_budget": 1500,
+        "tags": ["เน็ตจัดหนัก", "สตรีมมิง", "นักเดินทาง"]
+      }
+    },
+    {
+      "id": "pkg-fiber-home",
+      "name": "SAS Fiber Home 1Gbps",
+      "type": "fiber",
+      "price": 799,
+      "usage_gb": 9999,
+      "benefits": ["ไฟเบอร์ 1 Gbps ไม่จำกัด", "เราเตอร์ Wi-Fi 6 ฟรี", "กล่อง IPTV + แพ็กช่องพรีเมียม 100 ช่อง", "ติดตั้งฟรีภายใน 48 ชม."],
+      "ideal_profile": {
+        "min_usage_gb": 40,
+        "max_usage_gb": 99999,
+        "max_budget": 1200,
+        "tags": ["อินเทอร์เน็ตบ้าน", "ดูทีวี", "Work From Home"]
+      }
+    },
+    {
+      "id": "pkg-business",
+      "name": "SAS Business Flex",
+      "type": "business",
+      "price": 1299,
+      "usage_gb": 200,
+      "benefits": ["เน็ต 200GB", "เลขหมายธุรกิจ + VoIP", "ฟรี SMS 1,000 ข้อความ", "เจ้าหน้าที่ดูแลพิเศษ 24 ชม.", "บริการตีบิล/วางบิลอัตโนมัติ"],
+      "ideal_profile": {
+        "min_usage_gb": 100,
+        "max_usage_gb": 500,
+        "max_budget": 3000,
+        "tags": ["ธุรกิจ", "SME", "ออฟฟิศ"]
+      }
+    }
+  ]
+}

@@ -4,6 +4,7 @@
 # ============================================
 # Downloads a pre-converted ONNX model directly
 # (no Python dependencies needed)
+# Supports GitHub Releases and HuggingFace Hub
 #
 # Usage:
 #   ./scripts/download_model.sh                    # Interactive menu
@@ -16,12 +17,18 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 MODELS_DIR="$(dirname "$SCRIPT_DIR")/models"
 RELEASE_URL="https://github.com/Yotsawarit/models/releases/download/v0.1.0"
+HF_HUB="https://huggingface.co"
 
 # ── Model configurations ──────────────────────────────────────────
+# Format: display_name|filename|description|[hf_repo_id]
 declare -A MODELS
 MODELS["codeberta-small"]="CodeBERTa-small-v1|model.onnx|84M params, 6-layer RoBERTa"
 MODELS["codebert-base"]="CodeBERT-base|codebert-base.onnx|125M params, 12-layer BERT"
 MODELS["codebert-quantized"]="CodeBERT-base-quantized|codebert-base-quantized.onnx|Quantized (INT8) CodeBERT"
+MODELS["codebert-medium"]="CodeBERT-medium|codebert-medium.onnx|355M params, 24-layer BERT"
+MODELS["hf-codebert-base"]="CodeBERT base|codebert-base.onnx|125M params, 12-layer BERT from HF|hf-codebert/base-uncased"
+MODELS["hf-bert-base"]="BERT base|bert-base-uncased.onnx|110M params, 12-layer BERT from HF|hubertsbert/base-uncased"
+MODELS["hf-qwen3.8-27b-bucket"]="Qwen3.8-27B bucket|qwen3.8-27b-bucket.onnx|27B params, bucketed attention|Packtz12/Qwen3.8-27B-bucket"
 
 # ── Colors ────────────────────────────────────────────────────────
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
@@ -55,7 +62,7 @@ download_model() {
         exit 1
     fi
 
-    IFS='|' read -r name file desc <<< "$entry"
+    IFS='|' read -r name file desc hf_repo <<< "$entry"
     
     mkdir -p "$MODELS_DIR"
     local target="$MODELS_DIR/$file"
@@ -66,9 +73,16 @@ download_model() {
         return 0
     fi
 
-    local url="$RELEASE_URL/$file"
-    info "Downloading ${CYAN}$name${NC} ($desc)..."
-    info "URL: $url"
+    local url=""
+    if [[ -n "$hf_repo" ]]; then
+        info "Downloading from HuggingFace Hub: ${CYAN}$name${NC} ($desc)"
+        url="${HF_HUB}/${hf_repo}/resolve/main/${file}"
+        info "URL: $url"
+    else
+        info "Downloading ${CYAN}$name${NC} ($desc)..."
+        url="$RELEASE_URL/$file"
+        info "URL: $url"
+    fi
     
     echo -n "  "
     if command -v wget &>/dev/null; then
@@ -84,20 +98,34 @@ download_model() {
     ok "Downloaded: $file ($size)"
     
     # Also download tokenizer if available
-    local tokenizer_url="$RELEASE_URL/tokenizer.json"
+    local tokenizer_name="${file/%.onnx/tokenizer.json}"
+    local tokenizer_url=""
+    if [[ -n "$hf_repo" ]]; then
+        tokenizer_url="${HF_HUB}/${hf_repo}/resolve/main/${tokenizer_name}"
+    else
+        tokenizer_url="$RELEASE_URL/tokenizer.json"
+    fi
     if command -v wget &>/dev/null; then
         wget -q "$tokenizer_url" -O "$MODELS_DIR/tokenizer.json" 2>/dev/null && \
             ok "Tokenizer downloaded" || warn "Tokenizer not available separately"
     fi
+    if command -v curl &>/dev/null && [[ -z "$hf_repo" ]]; then
+        curl -#L "$tokenizer_url" -o "$MODELS_DIR/tokenizer.json" 2>/dev/null && \
+            ok "Tokenizer downloaded" || warn "Tokenizer not available separately"
+    fi
     
     # Write metadata
+    local source="github"
+    if [[ -n "$hf_repo" ]]; then
+        source="huggingface"
+    fi
     cat > "$MODELS_DIR/metadata.json" << EOF
 {
   "model": "$name",
   "file": "$file",
   "description": "$desc",
   "downloaded_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "source": "$RELEASE_URL"
+  "source": "$source"
 }
 EOF
     ok "Metadata saved"
