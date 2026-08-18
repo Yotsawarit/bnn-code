@@ -29,7 +29,7 @@ jobs:
         run: |
           cargo audit --json > audit.json || true
           cat audit.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: audit-report
           path: audit.json
