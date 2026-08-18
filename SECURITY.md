@@ -9,8 +9,9 @@
 ## Security Audit Status (2026-08-18)
 This project was audited against RustSec Advisory Database.
 
-**Result: 8/8 critical vulnerabilities PATCHED, 0 active.**
+**Result: 8/8 critical vulnerabilities PATCHED, 1 warning (allowed).**
 
+### Critical Vulnerabilities (PATCHED)
 - anyhow v1.0.104 - RUSTSEC-2026-0190 [PATCHED >=1.0.103]
 - chrono v0.4.45 - RUSTSEC-2020-0159 [PATCHED >=0.4.20]
 - tokio v1.53.1 - RUSTSEC-2025-0023 [PATCHED >=1.44.2]
@@ -19,7 +20,14 @@ This project was audited against RustSec Advisory Database.
 - tracing v0.1.44 - RUSTSEC-2023-0078 [PATCHED >=0.1.40]
 - rustls v0.23.40 - RUSTSEC-2024-0399 [PATCHED >=0.23.18]
 - hyper v1.11.0 - RUSTSEC-2021-0078 [PATCHED >=0.14.10]
-- dirs v5.0.1 - RUSTSEC-2020-0053 [UNMAINTAINED] -> Migrated to dirs-next in v0.1.4
+- dirs v5.0.1 - RUSTSEC-2020-0053 [UNMAINTAINED] → Migrated to dirs-next in v0.1.4
+
+### Allowed Warnings (Low Risk)
+- paste v1.0.15 - RUSTSEC-2024-0436 [UNMAINTAINED - Transitive Dependency]
+  - **Risk Level:** Low (compile-time proc-macro only)
+  - **Source:** Transitive dependency from tree-sitter proc-macro bindings
+  - **Status:** Under review for remediation in next release
+  - **Tracking:** GitHub Issue #<pending>
 
 Verification: `cargo audit` and `cargo deny check advisories`
 
