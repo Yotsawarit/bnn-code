@@ -315,20 +315,21 @@ impl Detector for SecurityDetector {
         self.check_ssh_keys();
 
         // Always add an info finding about basic system security posture
-        self.findings.push(Finding {
-            severity: Severity::Info,
-            category: "security".into(),
-            title: "Security baseline scan complete".into(),
-            description: format!(
-                "Scanned /proc entries, checked sensitive file permissions, \
-                 inspected network connections, and reviewed SSH key configurations. \
-                 Found {} potential issues.",
-                self.findings.len() - 1 // exclude the info entry itself
-            ),
-            confidence: 1.0,
-            location: None,
-            recommendation: "Run `bnn rogue security` periodically or set up as a cron job.".into(),
-        });
+let issue_count = self.findings.len();
+         self.findings.push(Finding {
+             severity: Severity::Info,
+             category: "security".into(),
+             title: "Security baseline scan complete".into(),
+             description: format!(
+                 "Scanned /proc entries, checked sensitive file permissions, \
+                  inspected network connections, and reviewed SSH key configurations. \
+                  Found {} potential issues.",
+                 issue_count
+             ),
+             confidence: 1.0,
+             location: None,
+             recommendation: "Run `bnn rogue security` periodically or set up as a cron job.".into(),
+         });
 
         Ok(self.findings.clone())
     }

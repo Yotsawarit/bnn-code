@@ -1,0 +1,12 @@
+Checking BNN Code ONNX Runtime setup...
+
+OS: Linux x86_64
+
+✅ ONNX Runtime 1.28.0 already installed at /home/bnn-core/.local/onnxruntime
+
+Checking environment variables...
+✅ ORT_DYLIB_PATH is set
+✅ LD_LIBRARY_PATH contains $HOME/.local/lib
+
+Checking symlinks...
+✅ User symlink: /home/bnn-core/.local/lib/libonnxruntime.so

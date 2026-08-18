@@ -1,0 +1,19 @@
+════════════════════════════════════════════════════════════
+  🔍 ROGUE DETECTION REPORT
+════════════════════════════════════════════════════════════
+  Total findings: 1
+
+  ── By Severity ──
+    ⚪ INFO: 1
+
+  ── By Category ──
+    • Security: 1
+
+  ── Details ──
+
+  1. ⚪ [INFO] Security baseline scan complete
+     Scanned /proc entries, checked sensitive file permissions, inspected network connections, and reviewed SSH key configurations. Found 0 potential issues.
+     Confidence: 100%
+     💡 Run `bnn rogue security` periodically or set up as a cron job.
+════════════════════════════════════════════════════════════
+

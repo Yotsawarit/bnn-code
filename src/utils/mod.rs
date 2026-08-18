@@ -1,5 +1,6 @@
 pub mod cache;
 pub mod config;
+pub mod license;
 
 use anyhow::Result;
 
