@@ -1,43 +1,10 @@
 version: 2
 updates:
-  # Cargo/Rust dependencies
   - package-ecosystem: "cargo"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "03:00"
-    open-pull-requests-limit: 5
-    reviewers:
-      - "Yotsawarit"
-    labels:
-      - "dependencies"
-      - "security"
-    commit-message:
-      prefix: "chore(deps):"
-      prefix-development: "chore(deps-dev):"
-      include: "scope"
-    allow:
-      - dependency-type: "production"
-      - dependency-type: "development"
-    ignore:
-      # Ignore unmaintained paste crate - tracking separately in Issue #9
-      - dependency-name: "paste"
-        versions: ["1.0.15"]
-    pull-request-branch-name:
-      separator: "/"
-
-  # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-      time: "03:00"
-    reviewers:
-      - "Yotsawarit"
-    labels:
-      - "ci/cd"
-      - "dependencies"
-    commit-message:
-      prefix: "ci:"
