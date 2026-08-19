@@ -12,7 +12,7 @@ Please report security issues privately so we can investigate and coordinate a f
 
 Preferred options:
 - Use GitHub Security Advisories (recommended): https://github.com/Yotsawarit/bnn-code/security/advisories (if enabled)
-- Email: security@your-domain.example (replace with your contact)
+- Email: security@yotsawarit.dev (replace with your contact)
 - If you prefer PGP-encrypted mail, use this key: <PGP KEY ID or URL>
 
 When reporting, please include:
@@ -56,7 +56,7 @@ We appreciate responsible disclosures. If you request recognition, we will list 
 - Reports that involve social engineering or accidental leaks of private data outside the project.
 
 ## Contact / Security team
-- Primary contact: security@your-domain.example
+- Primary contact: security@yotsawarit.dev
 - GitHub: https://github.com/Yotsawarit
 
 If you prefer, you can open a private GitHub Security Advisory for this repository (recommended).
