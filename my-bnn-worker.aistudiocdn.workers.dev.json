@@ -1,0 +1,10 @@
+{
+  "status": "operational",
+  "model": "bnn-code BNN",
+  "neurons": 37,
+  "synapses": 247,
+  "memory": "36 bytes",
+  "live_demo": "https://my-bnn-worker.aistudiocdn.workers.dev",
+  "validate_endpoint": "/validate",
+  "message": "BNN Worker live on Cloudflare Edge - XNOR + POPCOUNT"
+}
