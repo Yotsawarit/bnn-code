@@ -43,3 +43,21 @@ __pycache__/
 *.onnx.data
 *.onnx
 models/*.onnx*
+
+# ── Security & Credentials ───────────────────────
+*.pem
+ecc_private.pem
+
+# ── Environments & Dependencies ──────────────────
+codebert_env/
+venv/
+.env
+
+# ── Local Artifacts & Temporary Files ────────────
+.bnn/
+bnn-model-state-*.json
+models/
+!models/.gitkeep
+deploy/
+ecc_*
+mqtt_*
