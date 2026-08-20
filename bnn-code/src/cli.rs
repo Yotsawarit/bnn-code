@@ -73,6 +73,9 @@ pub enum Commands {
         /// Output as JSON
         #[arg(short, long)]
         json: bool,
+        /// Show detailed per-finding information
+        #[arg(short, long)]
+        verbose: bool,
     },
     /// Generate a commit message from staged changes
     Commit,
@@ -170,9 +173,10 @@ mod tests {
     fn test_cli_rogue_category() {
         let cli = Cli::try_parse_from(["bnn", "rogue", "--category", "security"]).unwrap();
         match cli.command {
-            Some(Commands::Rogue { category, json }) => {
+            Some(Commands::Rogue { category, json, verbose }) => {
                 assert_eq!(category.as_deref(), Some("security"));
                 assert!(!json);
+                assert!(!verbose);
             }
             _ => panic!("Expected Rogue command"),
         }

@@ -62,7 +62,23 @@ impl BnnInference {
 
         let output = self.engine.run(input_ids, attention_mask)?;
 
-        let output_ids: Vec<i64> = output.iter().map(|&x| x as i64).collect();
+        // `output` is (seq, vocab) logits — take argmax over the vocab axis
+        // to get the predicted token id at each position.
+        let vocab = output.ncols();
+        let seq = output.nrows();
+        let mut output_ids = Vec::with_capacity(seq);
+        for i in 0..seq {
+            let row = output.row(i);
+            let mut best = 0usize;
+            let mut best_val = row[0];
+            for j in 1..vocab {
+                if row[j] > best_val {
+                    best_val = row[j];
+                    best = j;
+                }
+            }
+            output_ids.push(best as i64);
+        }
         let response = self.tokenizer.decode(&output_ids)?;
 
         Ok(response)

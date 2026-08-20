@@ -10,7 +10,7 @@ pub struct LicenseFile {
 }
 
 fn license_path() -> PathBuf {
-    let mut p = dirs::config_dir().unwrap_or_else(|| PathBuf::from("."));
+    let mut p = dirs_next::config_dir().unwrap_or_else(|| PathBuf::from("."));
     p.push("bnn-code");
     fs::create_dir_all(&p).ok();
     p.push("license.json");

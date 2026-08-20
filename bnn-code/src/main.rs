@@ -122,7 +122,7 @@ async fn main() -> Result<()> {
             };
             println!("{}", pi);
         }
-        Some(Commands::Rogue { category, json }) => {
+        Some(Commands::Rogue { category, json, verbose }) => {
             use rogue::{format_report, RogueEngine};
             let mut engine = RogueEngine::new();
             let report = if let Some(cat) = category {
@@ -133,7 +133,7 @@ async fn main() -> Result<()> {
             if json {
                 println!("{}", serde_json::to_string_pretty(&report)?);
             } else {
-                println!("{}", format_report(&report, true));
+                println!("{}", format_report(&report, verbose));
             }
         }
         Some(Commands::Commit) => {

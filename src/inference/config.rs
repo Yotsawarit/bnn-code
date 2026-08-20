@@ -41,7 +41,7 @@ impl Default for ModelConfig {
         Self {
             model_type: Some("codeberta".into()),
             vocab_size: Some(50265),
-            max_length: Some(4096),
+            max_length: Some(512),
             hidden_size: Some(384),
             num_attention_heads: Some(6),
             num_hidden_layers: Some(6),
