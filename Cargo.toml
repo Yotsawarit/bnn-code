@@ -74,17 +74,16 @@ tempfile = "3.27.0"
 num-bigint = "0.4"
 num-traits = "0.2"
 dirs-next = "2.0.0"
-
-# 2FA/MFA Support
-totp = "0.4"
 base32 = "0.5"
 hmac = "0.13"
 
 # Recovery codes encryption
 base64 = "0.21"
-rand = "0.8"
-sha2 = "0.10"
-dirs-next = "2.0.0"
+ rand = "0.8"
+ sha2 = "0.10"
+lru = "0.18"
+totp-rs = "6.0.0"
+
 
 [profile.release]
 opt-level = 3
@@ -101,6 +100,3 @@ codegen-units = 1
 
 [dev-dependencies]
 tempfile = "3.27.0"
-
-[patch.crates-io]
-paste = { git = "https://github.com/your-org/paste" }
