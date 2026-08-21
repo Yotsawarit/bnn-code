@@ -1,59 +1,37 @@
-# Security Policy - bnn-code
+# Security Policy
 
 ## Supported Versions
-| Version | Supported |
-| ------- | --------- |
-| 0.1.4   | ✅ |
-| 0.1.3   | ✅ Hardened as of 2026-08-18 |
 
-## Security Audit Status (2026-08-18)
-This project was audited against RustSec Advisory Database.
-
-**Result: 8/8 critical vulnerabilities PATCHED, 1 warning (allowed).**
-
-### Critical Vulnerabilities (PATCHED)
-- anyhow v1.0.104 - RUSTSEC-2026-0190 [PATCHED >=1.0.103]
-- chrono v0.4.45 - RUSTSEC-2020-0159 [PATCHED >=0.4.20]
-- tokio v1.53.1 - RUSTSEC-2025-0023 [PATCHED >=1.44.2]
-- regex v1.13.1 - RUSTSEC-2022-0013 [PATCHED >=1.5.5]
-- rusqlite v0.31.0 - RUSTSEC-2021-0128 [PATCHED >=0.26.2]
-- tracing v0.1.44 - RUSTSEC-2023-0078 [PATCHED >=0.1.40]
-- rustls v0.23.40 - RUSTSEC-2024-0399 [PATCHED >=0.23.18]
-- hyper v1.11.0 - RUSTSEC-2021-0078 [PATCHED >=0.14.10]
-- dirs v5.0.1 - RUSTSEC-2020-0053 [UNMAINTAINED] → Migrated to dirs-next in v0.1.4
-
-### Allowed Warnings (Low Risk)
-- paste v1.0.15 - RUSTSEC-2024-0436 [UNMAINTAINED - Transitive Dependency]
-  - **Risk Level:** Low (compile-time proc-macro only)
-  - **Source:** Transitive dependency from tree-sitter proc-macro bindings
-  - **Status:** Under review for remediation in next release
-  - **Tracking:** GitHub Issue #<pending>
-
-Verification: `cargo audit` and `cargo deny check advisories`
+| Version | Supported          |
+| ------- | ------------------ |
+| 0.1.x   | :white_check_mark: |
 
 ## Reporting a Vulnerability
-We take zero-day reports seriously.
 
-1. **DO NOT** open a public issue.
-2. Use GitHub Private Vulnerability Reporting: https://github.com/Yotsawarit/bnn-code/security/advisories/new
-3. Or email: [add your security email]
-4. Please include:
-   - RustSec ID if known, or PoC with vulnerable version
-   - `cargo tree` output
-   - Suggested patch
+**Do not open a public issue for security reports.**
 
-We follow 90-day responsible disclosure.
+Use one of these private channels:
 
-## Reward Path
-- Valid new zero-day in dependencies: We will credit you in SECURITY_AUDIT.pdf, GitHub Advisory, and release notes.
-- We participate in huntr.dev and GitHub Security Lab for upstream crates.
-- Critical fixes are eligible for GitHub Sponsors bonus from project owner.
+1. **GitHub Security Advisory (preferred)**: Go to `Security` tab → `Report a vulnerability` → fill **Request CVE** if needed. Attach PoC privately.
+2. **Email**: yotsawarit@bnn-code (or via GitHub Sponsors contact)
 
-## CI/CD Security
-Every PR runs:
-```
-cargo install cargo-audit
-cargo audit
-```
+We aim to respond within 48 hours and coordinate disclosure.
 
-License: MIT - Copyright (c) 2026 Mr. Yotsawarit Pudpong
+## Security Bounty
+
+Found a valid RUSTSEC in our dependencies that we fix?
+We pay **$50** for each valid RUSTSEC that we patch and verify with `cargo audit` / `cargo deny`.
+
+* Hall of Fame: Yotsawarit Pudpong - `RUSTSEC-2026-0253` / `RUSTSEC-2026-0002` fix (`lru 0.18.2`)
+* Report via Security tab > Private reporting.
+
+People using PAC-CHAT (offline + secure) will see that we prioritize security.
+
+## Past Fixes
+
+- `lru 0.12.5 -> 0.18.2` fixes `RUSTSEC-2026-0253` (UAF in `LruCache::pop`) and `RUSTSEC-2026-0002` (Stacked Borrows `IterMut`) — verified with `cargo audit` 0 lru vuln (2 allowed: `paste`, `number_prefix` unmaintained).
+- PoC kept private until fix: `poc/poc_lru.rs` (panics in Drop)
+
+## Disclosure
+
+Once a fix is confirmed and `cargo audit` shows 0 vuln, we publish advisory and credit the reporter (CVE/Hall of Fame).
