@@ -60,7 +60,7 @@ notify = "6.1"
 
 # Terminal UI
 crossterm = "0.27"
-ratatui = "0.26"
+ratatui = "0.30"
 
 # Logging
 tracing = "0.1"
