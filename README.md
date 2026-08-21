@@ -231,6 +231,15 @@ python3 scripts/download_model.py --model codeberta-small
 | Windows x86_64 | `bnn-code-windows-amd64.exe.zip` |
 | Deepin/Debian/Ubuntu | `bnn-code_0.1.1_amd64.deb` |
 
+### ⚠️ ฮาร์ดแวร์และข้อจำกัดในสภาพแวดล้อม (Hardware & Environmental Caveats)
+
+**ความเข้ากันได้ของซีพียู (CPU Compatibility):** 
+  โมดูลอินเฟอเรนซ์ฝั่ง Rust (`onnx.rs`) พึ่งพาบิลด์สำเร็จรูปของ `ort` crate ซึ่งจำเป็นต้องใช้ชุดคำสั่งซีพียูระดับสูง (**AVX/AVX2** หรือใหม่กว่า) 
+* **อาการที่พบ:** หากนำไปรันบนซีพียูรุ่นเก่าหรือรุ่นประหยัดพลังงานที่รองรับเฉพาะ SSE4.2 (เช่น Intel Celeron G3900) โปรแกรมจะแครชทันทีด้วยสัญญาณระบบ `SIGILL (Illegal instruction)` ณ จุดเปิดใช้งานโมเดล
+* **แนวทางแก้ไข/ทดสอบบนเครื่องที่ไม่มี AVX:**
+  1. ใช้สคริปต์ฟอลแบ็กฝั่ง Python (`scripts/generate.py`) ในการทดสอบรันโมเดล `model.onnx` แทเนื่องจากเวอร์ชัน Python มีระบบ CPU Dispatcher ที่ยืดหยุ่นกว่า
+  2. รันระบบฝั่ง Rust บนฮาร์ดแวร์ระดับเซิร์ฟเวอร์หรือซีพียูสมัยใหม่ที่เปิดใช้งานชุดคำสั่ง AVX2 เป็นการทั่วไป
+
 ## Development
 
 ```bash
@@ -269,6 +278,14 @@ src/
 │   └── config.rs
 └── main.rs
 ```
+
+## Security Bounty
+
+Found zero-day in our dependencies? We pay $50 for valid RUSTSEC that we fix.
+Report via Security tab > Private reporting.
+Hall of Fame: Yotsawarit Pudpong - RUSTSEC-2026-0253 fix
+
+People using PAC-CHAT of ours that emphasize offline + secure will see that we care about security.
 
 ## License
 
