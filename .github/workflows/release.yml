@@ -82,7 +82,7 @@ jobs:
           Get-FileHash ${{ matrix.asset_name }}.zip -Algorithm SHA256 > ${{ matrix.asset_name }}.zip.sha256
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.asset_name }}
           path: |
@@ -131,7 +131,7 @@ jobs:
           dpkg-deb --build deb bnn-code_0.1.3_amd64.deb
 
       - name: Upload .deb artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: bnn-code-deb
           path: bnn-code_*.deb
