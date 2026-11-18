@@ -1,0 +1,8 @@
+{
+  "name": "BNN Code",
+  "description": "Terminal-native AI coding agent powered by Binarized Neural Networks with code understanding, anomaly detection, AST indexing, and arbitrary-precision math.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
